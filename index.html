@@ -514,8 +514,6 @@
     z-index: 1;
   }
 
-  .customer-info {}
-
   .customer-name {
     font-family: 'Cormorant Garamond', serif;
     font-size: 30px;
@@ -559,12 +557,6 @@
     background: rgba(201,168,76,0.18);
     border: 1px solid rgba(201,168,76,0.4);
     color: var(--gold-light);
-  }
-
-  .status-pill.done {
-    background: rgba(107,114,144,0.2);
-    border: 1px solid rgba(107,114,144,0.3);
-    color: var(--whisper);
   }
 
   .vehicle-meta {
@@ -702,11 +694,7 @@
     font-size: 15px;
   }
 
-  .stage-item.ready-stage.current .stage-dot {
-    background: var(--gold);
-    border-color: var(--gold);
-  }
-
+  .stage-item.ready-stage.current .stage-dot,
   .stage-item.ready-stage.completed .stage-dot {
     background: var(--gold);
     border-color: var(--gold);
@@ -748,8 +736,6 @@
   }
 
   .eta-icon svg { width: 24px; height: 24px; color: var(--gold); }
-
-  .eta-body {}
 
   .eta-label {
     font-size: 11px;
@@ -1187,206 +1173,4 @@
         </div>
         <div class="eta-body">
           <div class="eta-label">Estimated Time</div>
-          <div class="eta-message" id="cEta">Ready in approximately 15 minutes</div>
-        </div>
-      </div>
-
-      <div class="notes-strip" id="notesStrip" style="display:none">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <p class="notes-text" id="cNote"></p>
-      </div>
-
-      <div class="info-grid">
-        <div class="info-tile">
-          <div class="info-tile-label">Staff Member</div>
-          <div class="info-tile-value" id="cStaff">—</div>
-        </div>
-        <div class="info-tile">
-          <div class="info-tile-label">Time In</div>
-          <div class="info-tile-value" id="cTimeIn">—</div>
-        </div>
-        <div class="info-tile">
-          <div class="info-tile-label">Current Stage</div>
-          <div class="info-tile-value" id="cStageTile">—</div>
-        </div>
-      </div>
-
-      <div class="card-footer-bar">
-        <div class="last-updated">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-          </svg>
-          <span id="cLastUpdated">Last updated just now</span>
-        </div>
-        <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
-          <svg id="refreshIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-          </svg>
-          Refresh
-        </button>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<section class="photo-strip">
-  <div class="photo-strip-inner">
-    <div class="photo-strip-text">
-      <div class="photo-strip-eyebrow">Our Promise</div>
-      <h2 class="photo-strip-headline">Premium care for <em>every vehicle</em></h2>
-      <p class="photo-strip-body">
-        At Sankivi Car Wash, every vehicle receives the attention it deserves — from a thorough wash to a meticulous interior finish, handled by our expert team.
-      </p>
-    </div>
-    <div class="photo-mosaic">
-      <img class="ph-1" src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/main/Carwash1.jpg" alt="Car wash team at work"/>
-      <img class="ph-2" src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/main/carwash%20image2.avif" alt="Premium car wash finish"/>
-    </div>
-  </div>
-</section>
-
-<footer class="page-footer">
-  <div class="footer-brand">Sankivi Car Wash</div>
-  <p class="footer-copy">© 2026 Sankivi Car Wash · All rights reserved</p>
-</footer>
-
-<script>
-// ── CONFIG ──────────────────────────────────────────────────────────────
-// Paste your Apps Script Web App URL below
-// ── CONFIG ──────────────────────────────────────────────────────────────
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzY1msN3vylL0JU8bKWhbICB4Fjc8qYfEbM3-TwyM1FnQpFhW7ByLIzTNYtzW5xWrbI/exec';
-
-// ── UI LOGIC ────────────────────────────────────────────────────────────
-async function doSearch() {
-  const firstName = document.getElementById('firstName').value.trim().toLowerCase();
-  const lastName = document.getElementById('lastName').value.trim().toLowerCase();
-  const plateInput = document.getElementById('plate').value.trim().toLowerCase();
-
-  if (!firstName && !lastName && !plateInput) {
-    alert("Please enter a name or license plate.");
-    return;
-  }
-
-  // Show loading overlay
-  document.getElementById('loadingOverlay').classList.add('visible');
-  
-  // Hide previous results
-  document.getElementById('resultsSection').classList.remove('visible');
-  document.getElementById('vehicleCard').style.display = 'none';
-  document.getElementById('emptyState').classList.remove('visible');
-
-  try {
-    const response = await fetch(WEB_APP_URL);
-    if (!response.ok) throw new Error("Network response was not ok");
-    
-    const data = await response.json();
-    let foundRecord = null;
-
-    // Search logic
-    let foundRecord = null;
-    for (const row of data) {
-      // Access keys directly (Apps script preserves your exact header capitalization, or makes them lowercase depending on your sheet)
-      const rFirst = (row['First Name'] || row['first name'] || "").toLowerCase();
-      const rLast = (row['Last Name'] || row['last name'] || "").toLowerCase();
-      const rPlate = (row['License Plate'] || row['license plate'] || "").toLowerCase();
-
-      if (plateInput && rPlate === plateInput) {
-        foundRecord = row; break;
-      } else if (firstName && lastName && rFirst === firstName && rLast === lastName) {
-        foundRecord = row; break;
-      } else if (firstName && !lastName && !plateInput && rFirst === firstName) {
-        foundRecord = row; break;
-      } else if (!firstName && lastName && !plateInput && rLast === lastName) {
-        foundRecord = row; break;
-      }
-    }
-
-    if (foundRecord) {
-      populateCard(foundRecord);
-    } else {
-      document.getElementById('resultsSection').classList.add('visible');
-      document.getElementById('emptyState').classList.add('visible');
-    }
-
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    alert("Could not load data. Check your permissions and script URL.");
-  } finally {
-    document.getElementById('loadingOverlay').classList.remove('visible');
-  }
-}
-
-function populateCard(data) {
-  // Map spreadsheet columns to your HTML IDs (safely handling both casing options)
-  const fName = data['First Name'] || data['first name'] || '';
-  const lName = data['Last Name'] || data['last name'] || '';
-  
-  document.getElementById('cName').innerText = `${fName} ${lName}`.trim();
-  document.getElementById('cPlate').innerText = data['License Plate'] || data['license plate'] || 'N/A';
-  
-  // Meta data
-  document.getElementById('cMake').innerText = data['Make'] || data['make'] || '—';
-  document.getElementById('cType').innerText = data['Type'] || data['type'] || '—';
-  document.getElementById('cService').innerText = data['Service'] || data['service'] || '—';
-  document.getElementById('cBay').innerText = data['Bay'] || data['bay'] || '—';
-  document.getElementById('cJobId').innerText = data['Job ID'] || data['job id'] || '—';
-  
-  // Grid Info
-  document.getElementById('cStaff').innerText = data['Staff'] || data['staff'] || '—';
-  document.getElementById('cTimeIn').innerText = data['Time In'] || data['time in'] || '—';
-  document.getElementById('cStageTile').innerText = data['Stage'] || data['stage'] || '—';
-
-  // Notes
-  const notes = data['Notes'] || data['notes'];
-  if (notes) {
-    document.getElementById('notesStrip').style.display = 'flex';
-    document.getElementById('cNote').innerText = notes;
-  } else {
-    document.getElementById('notesStrip').style.display = 'none';
-  }
-
-  // ETA
-  const eta = data['ETA'] || data['eta'];
-  if (eta) {
-    document.getElementById('etaStrip').style.display = 'flex';
-    document.getElementById('cEta').innerText = eta;
-  } else {
-    document.getElementById('etaStrip').style.display = 'none';
-  }
-
-  // Update Status Pill
-  const statusEl = document.getElementById('cStatusPill');
-  const stage = (data['Stage'] || data['stage'] || '').toLowerCase();
-  
-  if (stage === 'ready' || stage === 'completed') {
-    statusEl.className = 'status-pill ready';
-    statusEl.innerText = 'Ready for Collection';
-  } else {
-    statusEl.className = 'status-pill active';
-    statusEl.innerText = 'In Progress';
-  }
-
-  // Show the card
-  document.getElementById('resultsSection').classList.add('visible');
-  document.getElementById('vehicleCard').style.display = 'block';
-  
-  // Update timestamp
-  const now = new Date();
-  document.getElementById('cLastUpdated').innerText = `Last updated ${now.toLocaleTimeString()}`;
-}
-
-function refreshData() {
-  const btn = document.getElementById('refreshBtn');
-  btn.classList.add('loading');
-  doSearch().then(() => {
-    setTimeout(() => btn.classList.remove('loading'), 500);
-  });
-}
-</script>
-</body>
-</html>
+          <div class="eta-message"
