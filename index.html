@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sankivi Car Wash — Vehicle Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --ink: #0d1117;
+    --ink-soft: #1e2530;
+    --slate: #3a4454;
+    --muted: #6b7a90;
+    --whisper: #c8d0dc;
+    --fog: #eef0f4;
+    --snow: #f8f9fb;
+    --white: #ffffff;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-pale: #fdf6e3;
+    --teal: #1a7a6e;
+    --teal-light: #26a99a;
+    --teal-pale: #e6f7f5;
+    --danger: #c0392b;
+    --success: #27ae60;
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 36px;
+    --shadow-sm: 0 2px 8px rgba(13,17,23,0.06);
+    --shadow-md: 0 8px 32px rgba(13,17,23,0.10);
+    --shadow-lg: 0 24px 64px rgba(13,17,23,0.14);
+    --shadow-gold: 0 8px 32px rgba(201,168,76,0.18);
+    --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--snow);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .hero-bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      160deg,
+      rgba(10,14,20,0.82) 0%,
+      rgba(10,14,20,0.65) 50%,
+      rgba(10,14,20,0.78) 100%
+    );
+    z-index: 1;
+  }
+
+  .hero-grain {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 128px;
+    pointer-events: none;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 40px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .nav-logo img {
+    height: 48px;
+    width: auto;
+    filter: brightness(0) invert(1);
+    opacity: 0.95;
+  }
+
+  .nav-logo-fallback {
+    display: none;
+    flex-direction: column;
+  }
+
+  .nav-logo-fallback .brand-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: 0.06em;
+    line-height: 1;
+  }
+
+  .nav-logo-fallback .brand-sub {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--gold-light);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  .nav-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.14);
+    padding: 8px 16px;
+    border-radius: 100px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .nav-badge .dot {
+    width: 8px;
+    height: 8px;
+    background: #4ade80;
+    border-radius: 50%;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
+  }
+
+  .nav-badge span {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── HERO CONTENT ── */
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px 80px;
+    text-align: center;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.3);
+    padding: 6px 18px;
+    border-radius: 100px;
+    margin-bottom: 28px;
+    opacity: 0;
+    animation: fade-up 0.7s 0.2s ease forwards;
+  }
+
+  .hero-eyebrow span {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gold-light);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .hero-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(42px, 7vw, 80px);
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+    opacity: 0;
+    animation: fade-up 0.7s 0.35s ease forwards;
+  }
+
+  .hero-headline em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+
+  .hero-sub {
+    font-size: 17px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.62);
+    max-width: 480px;
+    line-height: 1.7;
+    margin-bottom: 52px;
+    opacity: 0;
+    animation: fade-up 0.7s 0.5s ease forwards;
+  }
+
+  /* ── SEARCH CARD ── */
+  .search-card {
+    width: 100%;
+    max-width: 580px;
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: var(--radius-xl);
+    padding: 40px 36px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12);
+    opacity: 0;
+    animation: fade-up 0.7s 0.65s ease forwards;
+  }
+
+  .search-card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--white);
+    text-align: center;
+    margin-bottom: 28px;
+    letter-spacing: 0.03em;
+  }
+
+  .search-divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 20px 0;
+  }
+
+  .search-divider::before,
+  .search-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,0.14);
+  }
+
+  .search-divider span {
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .input-group {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .input-wrap {
+    flex: 1;
+    position: relative;
+  }
+
+  .input-wrap label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .input-wrap input {
+    width: 100%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--white);
+    outline: none;
+    transition: var(--transition);
+    -webkit-appearance: none;
+  }
+
+  .input-wrap input::placeholder { color: rgba(255,255,255,0.3); }
+
+  .input-wrap input:focus {
+    border-color: var(--gold);
+    background: rgba(255,255,255,0.12);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.18);
+  }
+
+  .input-solo {
+    margin-bottom: 0;
+  }
+
+  .input-solo .input-wrap input {
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .search-btn {
+    width: 100%;
+    margin-top: 24px;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, var(--gold) 0%, #b8962e 100%);
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 8px 24px rgba(201,168,76,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    -webkit-appearance: none;
+  }
+
+  .search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(201,168,76,0.48);
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+  }
+
+  .search-btn:active { transform: translateY(0); }
+
+  .search-btn svg { width: 18px; height: 18px; }
+
+  /* ── SCROLL INDICATOR ── */
+  .scroll-hint {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 32px;
+    opacity: 0;
+    animation: fade-in 1s 1.4s ease forwards;
+  }
+
+  .scroll-hint span {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 10px;
+  }
+
+  .scroll-arrow {
+    width: 1px;
+    height: 32px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+    animation: scroll-fade 1.8s ease-in-out infinite;
+  }
+
+  @keyframes scroll-fade {
+    0%, 100% { opacity: 0.4; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.15); }
+  }
+
+  /* ── RESULTS SECTION ── */
+  .results-section {
+    min-height: 100vh;
+    padding: 80px 24px;
+    background: var(--snow);
+    display: none;
+  }
+
+  .results-section.visible { display: block; }
+
+  .results-inner {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 80px 24px;
+    display: none;
+  }
+
+  .empty-state.visible { display: block; }
+
+  .empty-icon {
+    width: 72px;
+    height: 72px;
+    background: var(--fog);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+  }
+
+  .empty-icon svg { width: 32px; height: 32px; color: var(--muted); }
+
+  .empty-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+
+  .empty-sub {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 360px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* ── VEHICLE CARD ── */
+  .vehicle-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    margin-bottom: 24px;
+    animation: card-in 0.5s ease forwards;
+  }
+
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, var(--ink) 0%, var(--ink-soft) 100%);
+    padding: 32px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-header::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: rgba(201,168,76,0.08);
+  }
+
+  .card-header::after {
+    content: '';
+    position: absolute;
+    bottom: -60px;
+    left: 20px;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.03);
+  }
+
+  .card-header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .customer-info {}
+
+  .customer-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px;
+    font-weight: 500;
+    color: var(--white);
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+
+  .vehicle-plate {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--gold);
+    padding: 5px 14px;
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: 0.14em;
+  }
+
+  .status-pill {
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .status-pill.active {
+    background: rgba(74,222,128,0.15);
+    border: 1px solid rgba(74,222,128,0.3);
+    color: #4ade80;
+  }
+
+  .status-pill.ready {
+    background: rgba(201,168,76,0.18);
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--gold-light);
+  }
+
+  .status-pill.done {
+    background: rgba(107,114,144,0.2);
+    border: 1px solid rgba(107,114,144,0.3);
+    color: var(--whisper);
+  }
+
+  .vehicle-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .meta-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.88);
+  }
+
+  /* ── PROGRESS ── */
+  .progress-section {
+    padding: 36px 36px 28px;
+    border-bottom: 1px solid var(--fog);
+  }
+
+  .progress-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  .stage-track {
+    position: relative;
+    padding-left: 28px;
+  }
+
+  .stage-track::before {
+    content: '';
+    position: absolute;
+    left: 9px;
+    top: 10px;
+    bottom: 10px;
+    width: 2px;
+    background: var(--fog);
+    border-radius: 2px;
+  }
+
+  .stage-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 4px;
+    padding: 10px 0;
+  }
+
+  .stage-dot {
+    position: absolute;
+    left: -28px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--fog);
+    border: 2px solid var(--whisper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    flex-shrink: 0;
+    z-index: 1;
+  }
+
+  .stage-dot svg {
+    width: 10px;
+    height: 10px;
+    opacity: 0;
+    transition: var(--transition);
+  }
+
+  .stage-label {
+    font-size: 14px;
+    color: var(--whisper);
+    font-weight: 400;
+    transition: var(--transition);
+  }
+
+  .stage-item.completed .stage-dot {
+    background: var(--teal-light);
+    border-color: var(--teal-light);
+  }
+
+  .stage-item.completed .stage-dot svg {
+    opacity: 1;
+    color: white;
+  }
+
+  .stage-item.completed .stage-label {
+    color: var(--slate);
+  }
+
+  .stage-item.current .stage-dot {
+    background: var(--gold);
+    border-color: var(--gold);
+    box-shadow: 0 0 0 4px rgba(201,168,76,0.2);
+    animation: pulse-stage 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-stage {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(201,168,76,0.2); }
+    50% { box-shadow: 0 0 0 8px rgba(201,168,76,0.08); }
+  }
+
+  .stage-item.current .stage-dot svg {
+    opacity: 1;
+    color: var(--ink);
+  }
+
+  .stage-item.current .stage-label {
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 15px;
+  }
+
+  .stage-item.ready-stage.current .stage-dot {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+
+  .stage-item.ready-stage.completed .stage-dot {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+
+  .stage-current-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--gold-pale);
+    border: 1px solid rgba(201,168,76,0.3);
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #8a6a1a;
+    letter-spacing: 0.06em;
+    margin-left: 4px;
+  }
+
+  /* ── ETA CARD ── */
+  .eta-strip {
+    padding: 28px 36px;
+    border-bottom: 1px solid var(--fog);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .eta-icon {
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    background: var(--gold-pale);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .eta-icon svg { width: 24px; height: 24px; color: var(--gold); }
+
+  .eta-body {}
+
+  .eta-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .eta-message {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  /* ── NOTES STRIP ── */
+  .notes-strip {
+    padding: 22px 36px;
+    background: var(--teal-pale);
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .notes-strip svg { width: 18px; height: 18px; color: var(--teal); flex-shrink: 0; margin-top: 2px; }
+
+  .notes-text {
+    font-size: 14px;
+    color: var(--teal);
+    font-weight: 500;
+    line-height: 1.6;
+  }
+
+  /* ── INFO GRID ── */
+  .info-grid {
+    padding: 28px 36px 32px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .info-tile {
+    background: var(--snow);
+    border-radius: var(--radius-md);
+    padding: 18px 16px;
+    border: 1px solid var(--fog);
+  }
+
+  .info-tile-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .info-tile-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  /* ── LAST UPDATED ── */
+  .card-footer {
+    padding: 18px 36px;
+    background: var(--fog);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .last-updated {
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .last-updated svg { width: 14px; height: 14px; }
+
+  .refresh-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    background: var(--white);
+    border: 1px solid var(--whisper);
+    border-radius: 100px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--slate);
+    cursor: pointer;
+    transition: var(--transition);
+    letter-spacing: 0.04em;
+  }
+
+  .refresh-btn:hover { background: var(--ink); color: var(--white); border-color: var(--ink); }
+  .refresh-btn svg { width: 13px; height: 13px; }
+  .refresh-btn.loading svg { animation: spin 0.8s linear infinite; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── PHOTO STRIP ── */
+  .photo-strip {
+    padding: 80px 24px;
+    background: var(--ink);
+    overflow: hidden;
+  }
+
+  .photo-strip-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .photo-strip-text {
+    padding-right: 40px;
+  }
+
+  .photo-strip-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .photo-strip-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(32px, 3vw, 48px);
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+
+  .photo-strip-headline em { font-style: italic; color: var(--gold-light); }
+
+  .photo-strip-body {
+    font-size: 15px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.8;
+  }
+
+  .photo-mosaic {
+    position: relative;
+    height: 400px;
+  }
+
+  .photo-mosaic img {
+    position: absolute;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+  }
+
+  .photo-mosaic .ph-1 {
+    width: 65%;
+    height: 75%;
+    top: 0;
+    right: 0;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .photo-mosaic .ph-2 {
+    width: 50%;
+    height: 58%;
+    bottom: 0;
+    left: 0;
+    box-shadow: var(--shadow-lg);
+    border: 3px solid rgba(201,168,76,0.25);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 40px 24px;
+    text-align: center;
+  }
+
+  footer .footer-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--white);
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
+  footer .footer-copy {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── LOADING STATE ── */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(13,17,23,0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .loading-overlay.visible { display: flex; }
+
+  .loading-spinner {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 3px solid rgba(201,168,76,0.2);
+    border-top-color: var(--gold);
+    animation: spin 0.8s linear infinite;
+  }
+
+  .loading-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--white);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 700px) {
+    nav { padding: 20px 20px; }
+    .nav-logo img { height: 38px; }
+    .search-card { padding: 28px 20px; }
+    .input-group { flex-direction: column; gap: 0; }
+    .input-group .input-wrap:first-child { margin-bottom: 16px; }
+    .card-header { padding: 24px 20px; }
+    .card-header-top { flex-direction: column; gap: 12px; }
+    .progress-section { padding: 24px 20px; }
+    .eta-strip { padding: 20px; }
+    .notes-strip { padding: 16px 20px; }
+    .info-grid { grid-template-columns: 1fr 1fr; padding: 20px; gap: 12px; }
+    .info-grid .info-tile:last-child:nth-child(3) { grid-column: span 2; }
+    .card-footer { padding: 16px 20px; }
+    .photo-strip-inner { grid-template-columns: 1fr; }
+    .photo-strip-text { padding-right: 0; margin-bottom: 32px; }
+    .photo-mosaic { height: 280px; }
+    .vehicle-meta { gap: 16px; }
+  }
+
+  @media (max-width: 420px) {
+    .hero-headline { font-size: 38px; }
+    .info-grid { grid-template-columns: 1fr; }
+    .info-grid .info-tile:last-child:nth-child(3) { grid-column: span 1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <p class="loading-text">Locating your vehicle…</p>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <img class="hero-bg-img" src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/refs/heads/main/Carwash1.jpg" alt="Sankivi Car Wash" onerror="this.style.display='none'"/>
+    <div class="hero-overlay"></div>
+    <div class="hero-grain"></div>
+  </div>
+
+  <nav>
+    <div class="nav-logo">
+      <img src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/refs/heads/main/Sankivi-Logo.png" alt="Sankivi Car Wash" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+      <div class="nav-logo-fallback" id="logoFallback">
+        <span class="brand-name">SANKIVI</span>
+        <span class="brand-sub">Car Wash</span>
+      </div>
+    </div>
+    <div class="nav-badge">
+      <div class="dot"></div>
+      <span>Live Tracking</span>
+    </div>
+  </nav>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span>✦ Real-Time Vehicle Tracker</span>
+    </div>
+
+    <h1 class="hero-headline">
+      Where is<br/><em>your vehicle?</em>
+    </h1>
+    <p class="hero-sub">
+      Enter your details below to see exactly where your car is in our wash process — beautifully updated in real time.
+    </p>
+
+    <div class="search-card">
+      <p class="search-card-title">Find Your Vehicle</p>
+
+      <!-- NAME SEARCH -->
+      <div class="input-group">
+        <div class="input-wrap">
+          <label for="firstName">First Name</label>
+          <input type="text" id="firstName" placeholder="e.g. Johan" autocomplete="given-name" />
+        </div>
+        <div class="input-wrap">
+          <label for="lastName">Surname</label>
+          <input type="text" id="lastName" placeholder="e.g. De Beer" autocomplete="family-name" />
+        </div>
+      </div>
+
+      <div class="search-divider"><span>or search by plate</span></div>
+
+      <!-- PLATE SEARCH -->
+      <div class="input-group input-solo">
+        <div class="input-wrap">
+          <label for="plate">License Plate</label>
+          <input type="text" id="plate" placeholder="e.g. ABC 123 GP" autocomplete="off" />
+        </div>
+      </div>
+
+      <button class="search-btn" id="searchBtn" onclick="doSearch()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        Track My Vehicle
+      </button>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Results appear below</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- RESULTS SECTION -->
+<section class="results-section" id="resultsSection">
+  <div class="results-inner">
+
+    <!-- EMPTY STATE -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+      </div>
+      <h3 class="empty-title">No Vehicle Found</h3>
+      <p class="empty-sub">We couldn't find a vehicle matching your details. Please double-check your name or license plate and try again.</p>
+    </div>
+
+    <!-- VEHICLE CARD -->
+    <div class="vehicle-card" id="vehicleCard" style="display:none">
+      <div class="card-header">
+        <div class="card-header-top">
+          <div class="customer-info">
+            <div class="customer-name" id="cName">Johan De Beer</div>
+            <div class="vehicle-plate" id="cPlate">ABC 123 GP</div>
+          </div>
+          <div class="status-pill active" id="cStatusPill">In Progress</div>
+        </div>
+        <div class="vehicle-meta">
+          <div class="meta-item">
+            <span class="meta-label">Make</span>
+            <span class="meta-value" id="cMake">Toyota</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Type</span>
+            <span class="meta-value" id="cType">SUV</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Service</span>
+            <span class="meta-value" id="cService">Full Valet</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Bay</span>
+            <span class="meta-value" id="cBay">—</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Job ID</span>
+            <span class="meta-value" id="cJobId">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="progress-section">
+        <p class="progress-title">Wash Progress</p>
+        <div class="stage-track" id="stageTrack"></div>
+      </div>
+
+      <!-- ETA -->
+      <div class="eta-strip" id="etaStrip" style="display:none">
+        <div class="eta-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="eta-body">
+          <div class="eta-label">Estimated Time</div>
+          <div class="eta-message" id="cEta">Ready in approximately 15 minutes</div>
+        </div>
+      </div>
+
+      <!-- NOTES -->
+      <div class="notes-strip" id="notesStrip" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p class="notes-text" id="cNote"></p>
+      </div>
+
+      <!-- INFO GRID -->
+      <div class="info-grid">
+        <div class="info-tile">
+          <div class="info-tile-label">Staff Member</div>
+          <div class="info-tile-value" id="cStaff">—</div>
+        </div>
+        <div class="info-tile">
+          <div class="info-tile-label">Time In</div>
+          <div class="info-tile-value" id="cTimeIn">—</div>
+        </div>
+        <div class="info-tile">
+          <div class="info-tile-label">Current Stage</div>
+          <div class="info-tile-value" id="cStageTile">—</div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="card-footer">
+        <div class="last-updated">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+          <span id="cLastUpdated">Last updated just now</span>
+        </div>
+        <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
+          <svg id="refreshIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+          Refresh
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PHOTO FEATURE STRIP -->
+<section class="photo-strip">
+  <div class="photo-strip-inner">
+    <div class="photo-strip-text">
+      <div class="photo-strip-eyebrow">Our Promise</div>
+      <h2 class="photo-strip-headline">Premium care for <em>every vehicle</em></h2>
+      <p class="photo-strip-body">
+        At Sankivi Car Wash, every vehicle receives the attention it deserves — from a thorough wash to a meticulous interior finish, handled by our expert team.
+      </p>
+    </div>
+    <div class="photo-mosaic">
+      <img class="ph-1" src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/refs/heads/main/Carwash1.jpg" alt="Car wash team at work"/>
+      <img class="ph-2" src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/refs/heads/main/carwash%20image2.avif" alt="Premium car wash finish"/>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">Sankivi Car Wash</div>
+  <p class="footer-copy">© 2025 Sankivi Car Wash · All rights reserved</p>
+</footer>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────
+// Published Google Sheets CSV — works directly in browsers (no proxy needed)
+const CSV_PUBLISHED = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQEse0Fis7zTaXkvBsL_N1s97NM7nxsP9RLMQqLslDs6VdAiDAuuTyIgEUC9-MWnY2ANwXZzy33PUuW/pub?output=csv';
+const CSV_PROXY1    = 'https://corsproxy.io/?url='         + encodeURIComponent(CSV_PUBLISHED);
+const CSV_PROXY2    = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(CSV_PUBLISHED);
+
+const STAGES = [
+  'Vehicle Received',
+  'Waiting Queue',
+  'Bay 1 - Washing',
+  'Bay 2 - Washing',
+  'Rinsing',
+  'Drying',
+  'Interior Cleaning',
+  'Polishing',
+  'Quality Check',
+  'Ready for Collection',
+  'Collected',
+];
+
+const READY_STAGES = ['Ready for Collection', 'Collected'];
+
+let cachedData = null;
+let lastSearchKey = null;
+
+// ── CSV PARSER ───────────────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase().replace(/\s+/g, ' '));
+  return lines.slice(1).map(line => {
+    const cols = parseCSVLine(line);
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = (cols[i] || '').trim().replace(/^"|"$/g, ''); });
+    return obj;
+  }).filter(r => Object.values(r).some(v => v));
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let cur = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    if (line[i] === '"') {
+      inQuotes = !inQuotes;
+    } else if (line[i] === ',' && !inQuotes) {
+      result.push(cur);
+      cur = '';
+    } else {
+      cur += line[i];
+    }
+  }
+  result.push(cur);
+  return result;
+}
+
+// ── FETCH DATA ───────────────────────────────────────────────────────────
+async function tryFetch(url) {
+  const res = await fetch(url + (url.includes('?') ? '&' : '?') + 'cachebust=' + Date.now());
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const text = await res.text();
+  if (text.trim().startsWith('<!')) throw new Error('Got HTML not CSV');
+  if (text.trim().length < 10) throw new Error('Empty response');
+  return text;
+}
+
+async function fetchData() {
+  // Try published URL first (works natively in browsers), then CORS proxies as fallback
+  const attempts = [CSV_PUBLISHED, CSV_PROXY1, CSV_PROXY2];
+  for (const url of attempts) {
+    try {
+      console.log('Trying URL:', url.substring(0, 80) + '...');
+      const text = await tryFetch(url);
+      cachedData = parseCSV(text);
+      console.log('✅ Success! Rows:', cachedData.length, '| Columns:', cachedData.length > 0 ? Object.keys(cachedData[0]) : []);
+      return cachedData;
+    } catch (err) {
+      console.warn('❌ Failed (' + url.substring(0, 50) + '...):', err.message);
+    }
+  }
+  console.warn('All fetch attempts failed — showing demo data.');
+  return getDemoData();
+}
+
+// ── DEMO DATA (matches exact sheet column names) ─────────────────────────
+function getDemoData() {
+  return [
+    {
+      'job id': 'JOB-001',
+      'time in': '08:30',
+      'client first name': 'Johan',
+      'client surname': 'De Beer',
+      'license plate': 'ABC 123 GP',
+      'vehicle make': 'Toyota',
+      'vehicle type': 'SUV',
+      'service type': 'Full Valet',
+      'current stage': 'Interior Cleaning',
+      'bay': 'Bay 2',
+      'staff': 'Sipho M.',
+      'status note': 'Vacuuming complete, moving to seat cleaning.',
+      'eta': 'Ready in approximately 20 minutes.',
+      'last updated': '10:42',
+    },
+    {
+      'job id': 'JOB-002',
+      'time in': '09:00',
+      'client first name': 'Thabo',
+      'client surname': 'Nkosi',
+      'license plate': 'XYZ 456 GP',
+      'vehicle make': 'BMW',
+      'vehicle type': 'Sedan',
+      'service type': 'Express Wash',
+      'current stage': 'Quality Check',
+      'bay': '—',
+      'staff': 'Lerato K.',
+      'status note': 'Final inspection underway.',
+      'eta': 'Ready for collection in approximately 5 minutes.',
+      'last updated': '10:55',
+    },
+    {
+      'job id': 'JOB-003',
+      'time in': '09:15',
+      'client first name': 'Sarah',
+      'client surname': 'Van Wyk',
+      'license plate': 'DEF 789 MP',
+      'vehicle make': 'VW Polo',
+      'vehicle type': 'Hatchback',
+      'service type': 'Full Valet',
+      'current stage': 'Ready for Collection',
+      'bay': '—',
+      'staff': 'Nomsa D.',
+      'status note': 'Your vehicle is sparkling clean and ready!',
+      'eta': 'Your vehicle is ready — please proceed to reception.',
+      'last updated': '11:00',
+    },
+  ];
+}
+
+// ── SEARCH ───────────────────────────────────────────────────────────────
+async function doSearch() {
+  const fn = document.getElementById('firstName').value.trim().toLowerCase();
+  const ln = document.getElementById('lastName').value.trim().toLowerCase();
+  const plate = document.getElementById('plate').value.trim().toLowerCase().replace(/\s/g, '');
+
+  if (!fn && !ln && !plate) {
+    shakCard();
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const data = await fetchData();
+    let match = null;
+
+    // Debug: log parsed headers from first row so we can verify
+    if (data.length > 0) console.log('CSV columns found:', Object.keys(data[0]));
+
+    if (plate) {
+      match = data.find(r => {
+        const rPlate = (r['license plate'] || '').toLowerCase().replace(/\s/g, '');
+        return rPlate === plate;
+      });
+    }
+
+    if (!match && (fn || ln)) {
+      match = data.find(r => {
+        const rFn = (r['client first name'] || '').toLowerCase().trim();
+        const rLn = (r['client surname'] || '').toLowerCase().trim();
+        const fnMatch = fn ? rFn.includes(fn) : true;
+        const lnMatch = ln ? rLn.includes(ln) : true;
+        return fnMatch && lnMatch;
+      });
+    }
+
+    setLoading(false);
+    showResult(match);
+
+    setTimeout(() => {
+      document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+
+  } catch (err) {
+    setLoading(false);
+    showResult(null);
+    console.error(err);
+  }
+}
+
+// ── REFRESH ──────────────────────────────────────────────────────────────
+async function refreshData() {
+  if (!lastSearchKey) return;
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('loading');
+  cachedData = null;
+
+  // Re-run last search
+  await doSearch();
+  btn.classList.remove('loading');
+}
+
+// ── DISPLAY RESULT ───────────────────────────────────────────────────────
+function showResult(record) {
+  const resultsSection = document.getElementById('resultsSection');
+  const emptyState = document.getElementById('emptyState');
+  const vehicleCard = document.getElementById('vehicleCard');
+
+  resultsSection.classList.add('visible');
+
+  if (!record) {
+    emptyState.classList.add('visible');
+    vehicleCard.style.display = 'none';
+    return;
+  }
+
+  emptyState.classList.remove('visible');
+  vehicleCard.style.display = 'block';
+
+  // Helper: get value by exact key (case-insensitive fallback)
+  const g = (key) => {
+    // Try exact key first
+    if (record[key] && record[key].trim()) return record[key].trim();
+    // Try lowercase version
+    const lk = key.toLowerCase();
+    if (record[lk] && record[lk].trim()) return record[lk].trim();
+    return '—';
+  };
+
+  // Exact column names from the sheet:
+  // Job ID | Time In | Client First Name | Client Surname | License Plate
+  // Vehicle Make | Vehicle Type | Service Type | Current Stage | Bay
+  // Staff | Status Note | ETA | Last Updated
+
+  const firstName = g('client first name');
+  const surname   = g('client surname');
+  const name      = [firstName, surname].filter(v => v !== '—').join(' ') || '—';
+  const stage     = g('current stage');
+  const isReady   = READY_STAGES.includes(stage);
+  const isCollected = stage === 'Collected';
+
+  document.getElementById('cName').textContent    = name;
+  document.getElementById('cPlate').textContent   = g('license plate');
+  document.getElementById('cMake').textContent    = g('vehicle make');
+  document.getElementById('cType').textContent    = g('vehicle type');
+  document.getElementById('cService').textContent = g('service type');
+  document.getElementById('cBay').textContent     = g('bay');
+  document.getElementById('cJobId').textContent   = g('job id');
+  document.getElementById('cStaff').textContent   = g('staff');
+  document.getElementById('cTimeIn').textContent  = g('time in');
+  document.getElementById('cStageTile').textContent = stage;
+  document.getElementById('cLastUpdated').textContent = `Last updated ${g('last updated')}`;
+
+  // Status pill
+  const pill = document.getElementById('cStatusPill');
+  pill.className = 'status-pill';
+  if (isCollected)   { pill.classList.add('done');   pill.textContent = 'Collected'; }
+  else if (isReady)  { pill.classList.add('ready');  pill.textContent = 'Ready ✓'; }
+  else               { pill.classList.add('active'); pill.textContent = 'In Progress'; }
+
+  // ETA (column is just "ETA")
+  const eta = g('eta');
+  if (eta !== '—') {
+    document.getElementById('cEta').textContent = eta;
+    document.getElementById('etaStrip').style.display = 'flex';
+  } else {
+    document.getElementById('etaStrip').style.display = 'none';
+  }
+
+  // Notes (column is "Status Note")
+  const note = g('status note');
+  if (note !== '—') {
+    document.getElementById('cNote').textContent = note;
+    document.getElementById('notesStrip').style.display = 'flex';
+  } else {
+    document.getElementById('notesStrip').style.display = 'none';
+  }
+
+  buildStageTrack(stage);
+}
+
+// ── STAGE TRACKER ────────────────────────────────────────────────────────
+function buildStageTrack(currentStage) {
+  const track = document.getElementById('stageTrack');
+  track.innerHTML = '';
+
+  const currentIdx = STAGES.indexOf(currentStage);
+
+  STAGES.forEach((s, i) => {
+    const isCompleted = i < currentIdx;
+    const isCurrent = i === currentIdx;
+    const isReady = READY_STAGES.includes(s);
+
+    const item = document.createElement('div');
+    item.className = 'stage-item';
+    if (isCompleted) item.classList.add('completed');
+    if (isCurrent) item.classList.add('current');
+    if (isReady) item.classList.add('ready-stage');
+
+    const dot = document.createElement('div');
+    dot.className = 'stage-dot';
+
+    if (isCompleted) {
+      dot.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+    } else if (isCurrent) {
+      if (s === 'Ready for Collection') {
+        dot.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+      } else {
+        dot.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg>`;
+      }
+    }
+
+    const label = document.createElement('span');
+    label.className = 'stage-label';
+    label.textContent = s;
+
+    if (isCurrent && s !== 'Collected') {
+      const badge = document.createElement('span');
+      badge.className = 'stage-current-badge';
+      badge.textContent = 'Current';
+      label.appendChild(document.createTextNode(' '));
+      label.appendChild(badge);
+    }
+
+    item.appendChild(dot);
+    item.appendChild(label);
+    track.appendChild(item);
+  });
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────────────
+function setLoading(show) {
+  const ol = document.getElementById('loadingOverlay');
+  if (show) ol.classList.add('visible');
+  else ol.classList.remove('visible');
+}
+
+function shakCard() {
+  const btn = document.getElementById('searchBtn');
+  btn.style.transform = 'translateX(-6px)';
+  setTimeout(() => btn.style.transform = 'translateX(6px)', 80);
+  setTimeout(() => btn.style.transform = 'translateX(-4px)', 160);
+  setTimeout(() => btn.style.transform = '', 240);
+}
+
+// Enter key support
+['firstName','lastName','plate'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSearch();
+  });
+});
+
+// Plate auto-uppercase
+document.getElementById('plate').addEventListener('input', function() {
+  const pos = this.selectionStart;
+  this.value = this.value.toUpperCase();
+  this.setSelectionRange(pos, pos);
+});
+</script>
+</body>
+</html>
