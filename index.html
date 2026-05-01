@@ -37,7 +37,6 @@
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   html { scroll-behavior: smooth; }
 
   body {
@@ -56,19 +55,8 @@
     overflow: hidden;
   }
 
-  .hero-bg {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-  }
-
-  .hero-bg-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    display: block;
-  }
+  .hero-bg { position: absolute; inset: 0; z-index: 0; }
+  .hero-bg-img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
 
   .hero-overlay {
     position: absolute;
@@ -689,7 +677,11 @@
     font-size: 15px;
   }
 
-  .stage-item.ready-stage.current .stage-dot,
+  .stage-item.ready-stage.current .stage-dot {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+
   .stage-item.ready-stage.completed .stage-dot {
     background: var(--gold);
     border-color: var(--gold);
@@ -838,12 +830,7 @@
     letter-spacing: 0.04em;
   }
 
-  .refresh-btn:hover {
-    background: var(--ink);
-    color: var(--white);
-    border-color: var(--ink);
-  }
-
+  .refresh-btn:hover { background: var(--ink); color: var(--white); border-color: var(--ink); }
   .refresh-btn svg { width: 13px; height: 13px; }
   .refresh-btn.loading svg { animation: spin 0.8s linear infinite; }
 
@@ -868,9 +855,7 @@
     align-items: center;
   }
 
-  .photo-strip-text {
-    padding-right: 40px;
-  }
+  .photo-strip-text { padding-right: 40px; }
 
   .photo-strip-eyebrow {
     font-size: 11px;
@@ -1113,6 +1098,7 @@
 
 <section class="results-section" id="resultsSection">
   <div class="results-inner">
+
     <div class="empty-state" id="emptyState">
       <div class="empty-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -1127,23 +1113,23 @@
       <div class="card-header">
         <div class="card-header-top">
           <div class="customer-info">
-            <div class="customer-name" id="cName">Johan De Beer</div>
-            <div class="vehicle-plate" id="cPlate">ABC 123 GP</div>
+            <div class="customer-name" id="cName">—</div>
+            <div class="vehicle-plate" id="cPlate">—</div>
           </div>
           <div class="status-pill active" id="cStatusPill">In Progress</div>
         </div>
         <div class="vehicle-meta">
           <div class="meta-item">
             <span class="meta-label">Make</span>
-            <span class="meta-value" id="cMake">Toyota</span>
+            <span class="meta-value" id="cMake">—</span>
           </div>
           <div class="meta-item">
             <span class="meta-label">Type</span>
-            <span class="meta-value" id="cType">SUV</span>
+            <span class="meta-value" id="cType">—</span>
           </div>
           <div class="meta-item">
             <span class="meta-label">Service</span>
-            <span class="meta-value" id="cService">Full Valet</span>
+            <span class="meta-value" id="cService">—</span>
           </div>
           <div class="meta-item">
             <span class="meta-label">Bay</span>
@@ -1169,7 +1155,7 @@
         </div>
         <div class="eta-body">
           <div class="eta-label">Estimated Time</div>
-          <div class="eta-message" id="cEta">Ready in approximately 15 minutes</div>
+          <div class="eta-message" id="cEta">—</div>
         </div>
       </div>
 
@@ -1212,6 +1198,7 @@
         </button>
       </div>
     </div>
+
   </div>
 </section>
 
@@ -1237,7 +1224,7 @@
 </footer>
 
 <script>
-const CSV_PUBLISHED = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQEse0Fis7zTaXkvBsL_N1s97NM7nxsP9RLMQqLslDs6VdAiDAuuTyIgEUC9-MWnY2ANwXZzy33PUuW/pub?output=csv';
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQEse0Fis7zTaXkvBsL_N1s97NM7nxsP9RLMQqLslDs6VdAiDAuuTyIgEUC9-MWnY2ANwXZzy33PUuW/pub?output=csv';
 
 const STAGES = [
   'Vehicle Received',
@@ -1250,19 +1237,17 @@ const STAGES = [
   'Polishing',
   'Quality Check',
   'Ready for Collection',
-  'Collected',
+  'Collected'
 ];
 
 const READY_STAGES = ['Ready for Collection', 'Collected'];
 
 let cachedData = null;
+let lastSearch = { firstName: '', lastName: '', plate: '' };
 
-/* ─────────────────────────────────────────────
-   HEADER NORMALISATION (CRITICAL FIX)
-──────────────────────────────────────────── */
 function normalizeKey(str) {
-  return (str || '')
-    .toString()
+  return String(str || '')
+    .replace(/^\uFEFF/, '')
     .trim()
     .toLowerCase()
     .replace(/\s+/g, ' ')
@@ -1270,123 +1255,173 @@ function normalizeKey(str) {
     .trim();
 }
 
-/* ─────────────────────────────────────────────
-   CSV PARSER (ROBUST)
-──────────────────────────────────────────── */
-function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  if (lines.length < 2) return [];
-
-  const rawHeaders = lines[0].split(',');
-
-  // Normalize headers ONCE
-  const headers = rawHeaders.map(h => normalizeKey(h));
-
-  return lines.slice(1).map(line => {
-    const cols = parseCSVLine(line);
-
-    const obj = {};
-    headers.forEach((h, i) => {
-      obj[h] = (cols[i] || '').trim();
-    });
-
-    return obj;
-  }).filter(r => Object.values(r).some(v => v));
+function normalizeValue(str) {
+  return String(str || '').trim().toLowerCase().replace(/\s+/g, '');
 }
 
-/* Handles quoted CSV properly */
-function parseCSVLine(line) {
-  const result = [];
-  let cur = '';
+function setLoading(show) {
+  document.getElementById('loadingOverlay').classList.toggle('visible', show);
+}
+
+function shakCard() {
+  const btn = document.getElementById('searchBtn');
+  btn.style.transform = 'translateX(-6px)';
+  setTimeout(() => btn.style.transform = 'translateX(6px)', 80);
+  setTimeout(() => btn.style.transform = 'translateX(-4px)', 160);
+  setTimeout(() => btn.style.transform = '', 240);
+}
+
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let cell = '';
   let inQuotes = false;
 
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    const next = text[i + 1];
 
     if (char === '"') {
-      inQuotes = !inQuotes;
+      if (inQuotes && next === '"') {
+        cell += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
     } else if (char === ',' && !inQuotes) {
-      result.push(cur);
-      cur = '';
+      row.push(cell);
+      cell = '';
+    } else if ((char === '\n' || char === '\r') && !inQuotes) {
+      if (char === '\r' && next === '\n') i++;
+      row.push(cell);
+      cell = '';
+      if (row.some(v => String(v).trim() !== '')) rows.push(row);
+      row = [];
     } else {
-      cur += char;
+      cell += char;
     }
   }
 
-  result.push(cur);
-  return result;
+  row.push(cell);
+  if (row.some(v => String(v).trim() !== '')) rows.push(row);
+
+  return rows;
 }
 
-/* ─────────────────────────────────────────────
-   FETCH SHEET
-──────────────────────────────────────────── */
+function findHeaderRow(rows) {
+  const required = [
+    'job id',
+    'time in',
+    'client first name',
+    'client surname',
+    'license plate',
+    'vehicle make',
+    'vehicle type',
+    'service type',
+    'current stage',
+    'bay',
+    'staff',
+    'status note',
+    'eta',
+    'last updated'
+  ].map(normalizeKey);
+
+  for (let i = 0; i < rows.length; i++) {
+    const normalized = rows[i].map(normalizeKey);
+    const score = required.filter(h => normalized.includes(h)).length;
+    if (score >= 8) return i;
+  }
+
+  return -1;
+}
+
+function mapRowToObject(headers, row) {
+  const obj = {};
+  headers.forEach((h, i) => {
+    obj[h] = (row[i] ?? '').toString().trim();
+  });
+  return obj;
+}
+
 async function fetchData() {
-  try {
-    const res = await fetch(CSV_PUBLISHED + '?cache=' + Date.now());
-    const text = await res.text();
+  if (cachedData) return cachedData;
 
-    cachedData = parseCSV(text);
+  const res = await fetch(CSV_URL + '&cache=' + Date.now(), { cache: 'no-store' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
 
-    console.log("✅ CSV LOADED ROWS:", cachedData.length);
-    console.log("📌 SAMPLE ROW:", cachedData[0]);
+  const text = await res.text();
+  const rows = parseCSV(text);
 
+  const headerIndex = findHeaderRow(rows);
+  if (headerIndex === -1) {
+    console.error('Could not find header row.');
+    console.log(rows);
+    cachedData = [];
     return cachedData;
-
-  } catch (err) {
-    console.error("❌ FETCH ERROR:", err);
-    return [];
   }
+
+  const headers = rows[headerIndex].map(normalizeKey);
+  const dataRows = rows.slice(headerIndex + 1);
+
+  cachedData = dataRows.map(r => mapRowToObject(headers, r))
+    .filter(r => Object.values(r).some(v => String(v).trim() !== ''));
+
+  console.log('Loaded rows:', cachedData.length);
+  console.log('Headers:', headers);
+  console.log('First row:', cachedData[0]);
+
+  return cachedData;
 }
 
-/* ─────────────────────────────────────────────
-   SEARCH
-──────────────────────────────────────────── */
-async function doSearch() {
-  const fn = document.getElementById('firstName').value.trim().toLowerCase();
-  const ln = document.getElementById('lastName').value.trim().toLowerCase();
-  const plate = document.getElementById('plate').value.trim().toLowerCase().replace(/\s/g, '');
-
-  if (!fn && !ln && !plate) return;
-
-  setLoading(true);
-
-  const data = await fetchData();
-
-  const norm = v => (v || '').toLowerCase().replace(/\s/g, '');
-
-  let match = null;
-
-  // Plate search
-  if (plate) {
-    match = data.find(r => norm(r['license plate']) === plate);
-  }
-
-  // Name search
-  if (!match && (fn || ln)) {
-    match = data.find(r => {
-      const rFn = (r['client first name'] || '').toLowerCase();
-      const rLn = (r['client surname'] || '').toLowerCase();
-
-      return (!fn || rFn.includes(fn)) &&
-             (!ln || rLn.includes(ln));
-    });
-  }
-
-  setLoading(false);
-  showResult(match);
-}
-
-/* ─────────────────────────────────────────────
-   DISPLAY HELPERS
-──────────────────────────────────────────── */
 function g(record, key) {
   const value = record[normalizeKey(key)];
-  return value && value.trim() !== '' ? value : '—';
+  return value && String(value).trim() !== '' ? String(value).trim() : '—';
 }
 
-/* ─────────────────────────────────────────────
-   SHOW RESULT
-──────────────────────────────────────────── */
+function buildStageTrack(currentStage) {
+  const track = document.getElementById('stageTrack');
+  track.innerHTML = '';
+
+  const currentIdx = STAGES.indexOf(currentStage);
+
+  STAGES.forEach((s, i) => {
+    const isCompleted = i < currentIdx;
+    const isCurrent = i === currentIdx;
+    const isReady = READY_STAGES.includes(s);
+
+    const item = document.createElement('div');
+    item.className = 'stage-item';
+    if (isCompleted) item.classList.add('completed');
+    if (isCurrent) item.classList.add('current');
+    if (isReady) item.classList.add('ready-stage');
+
+    const dot = document.createElement('div');
+    dot.className = 'stage-dot';
+
+    if (isCompleted) {
+      dot.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+    } else if (isCurrent) {
+      dot.innerHTML = `<svg viewBox="0 0 24 24" fill="${s === 'Ready for Collection' ? 'none' : 'currentColor'}" stroke="currentColor" stroke-width="${s === 'Ready for Collection' ? '2.5' : '0'}" stroke-linecap="round" stroke-linejoin="round">${s === 'Ready for Collection' ? '<polyline points="20 6 9 17 4 12"/>' : '<circle cx="12" cy="12" r="5"/>'}</svg>`;
+    }
+
+    const label = document.createElement('span');
+    label.className = 'stage-label';
+    label.textContent = s;
+
+    if (isCurrent && s !== 'Collected') {
+      const badge = document.createElement('span');
+      badge.className = 'stage-current-badge';
+      badge.textContent = 'Current';
+      label.appendChild(document.createTextNode(' '));
+      label.appendChild(badge);
+    }
+
+    item.appendChild(dot);
+    item.appendChild(label);
+    track.appendChild(item);
+  });
+}
+
 function showResult(record) {
   const resultsSection = document.getElementById('resultsSection');
   const emptyState = document.getElementById('emptyState');
@@ -1403,12 +1438,13 @@ function showResult(record) {
   emptyState.classList.remove('visible');
   vehicleCard.style.display = 'block';
 
+  const firstName = g(record, 'Client First Name');
+  const surname = g(record, 'Client Surname');
   const stage = g(record, 'Current Stage');
-  const name = [g(record, 'Client First Name'), g(record, 'Client Surname')]
-    .filter(v => v !== '—')
-    .join(' ');
+  const isReady = READY_STAGES.includes(stage);
+  const isCollected = normalizeValue(stage) === normalizeValue('Collected');
 
-  document.getElementById('cName').textContent = name;
+  document.getElementById('cName').textContent = [firstName, surname].filter(v => v !== '—').join(' ') || '—';
   document.getElementById('cPlate').textContent = g(record, 'License Plate');
   document.getElementById('cMake').textContent = g(record, 'Vehicle Make');
   document.getElementById('cType').textContent = g(record, 'Vehicle Type');
@@ -1418,52 +1454,123 @@ function showResult(record) {
   document.getElementById('cStaff').textContent = g(record, 'Staff');
   document.getElementById('cTimeIn').textContent = g(record, 'Time In');
   document.getElementById('cStageTile').textContent = stage;
-  document.getElementById('cEta').textContent = g(record, 'ETA');
-  document.getElementById('cNote').textContent = g(record, 'Status Note');
   document.getElementById('cLastUpdated').textContent = 'Last updated ' + g(record, 'Last Updated');
+
+  const pill = document.getElementById('cStatusPill');
+  pill.className = 'status-pill';
+  if (isCollected) {
+    pill.classList.add('done');
+    pill.textContent = 'Collected';
+  } else if (isReady) {
+    pill.classList.add('ready');
+    pill.textContent = 'Ready ✓';
+  } else {
+    pill.classList.add('active');
+    pill.textContent = 'In Progress';
+  }
+
+  const eta = g(record, 'ETA');
+  if (eta !== '—') {
+    document.getElementById('cEta').textContent = eta;
+    document.getElementById('etaStrip').style.display = 'flex';
+  } else {
+    document.getElementById('etaStrip').style.display = 'none';
+  }
+
+  const note = g(record, 'Status Note');
+  if (note !== '—') {
+    document.getElementById('cNote').textContent = note;
+    document.getElementById('notesStrip').style.display = 'flex';
+  } else {
+    document.getElementById('notesStrip').style.display = 'none';
+  }
 
   buildStageTrack(stage);
 }
 
-/* ─────────────────────────────────────────────
-   STAGE TRACKER
-──────────────────────────────────────────── */
-function buildStageTrack(currentStage) {
-  const track = document.getElementById('stageTrack');
-  track.innerHTML = '';
+async function doSearch() {
+  const firstName = document.getElementById('firstName').value.trim();
+  const lastName = document.getElementById('lastName').value.trim();
+  const plate = document.getElementById('plate').value.trim();
 
-  const currentIdx = STAGES.indexOf(currentStage);
+  if (!firstName && !lastName && !plate) {
+    shakCard();
+    return;
+  }
 
-  STAGES.forEach((s, i) => {
-    const item = document.createElement('div');
-    item.className = 'stage-item';
+  lastSearch = { firstName, lastName, plate };
+  setLoading(true);
 
-    if (i < currentIdx) item.classList.add('completed');
-    if (i === currentIdx) item.classList.add('current');
+  try {
+    const data = await fetchData();
+    const fn = normalizeValue(firstName);
+    const ln = normalizeValue(lastName);
+    const p = normalizeValue(plate).replace(/\s+/g, '');
 
-    const dot = document.createElement('div');
-    dot.className = 'stage-dot';
+    let match = null;
 
-    const label = document.createElement('span');
-    label.className = 'stage-label';
-    label.textContent = s;
+    if (p) {
+      match = data.find(r => normalizeValue(g(r, 'License Plate')).replace(/\s+/g, '') === p);
+    }
 
-    item.appendChild(dot);
-    item.appendChild(label);
-    track.appendChild(item);
-  });
+    if (!match && (fn || ln)) {
+      match = data.find(r => {
+        const rFn = normalizeValue(g(r, 'Client First Name'));
+        const rLn = normalizeValue(g(r, 'Client Surname'));
+        const fnOk = fn ? rFn.includes(fn) : true;
+        const lnOk = ln ? rLn.includes(ln) : true;
+        return fnOk && lnOk;
+      });
+    }
+
+    if (!match && fn && !ln) {
+      match = data.find(r => normalizeValue(g(r, 'Client First Name')).includes(fn));
+    }
+
+    if (!match && ln && !fn) {
+      match = data.find(r => normalizeValue(g(r, 'Client Surname')).includes(ln));
+    }
+
+    setLoading(false);
+    showResult(match);
+
+    setTimeout(() => {
+      document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+
+  } catch (err) {
+    console.error(err);
+    setLoading(false);
+    showResult(null);
+  }
 }
 
-/* ───────────────────────────────────────────── */
-function setLoading(show) {
-  document.getElementById('loadingOverlay')
-    .classList.toggle('visible', show);
+async function refreshData() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('loading');
+  cachedData = null;
+
+  try {
+    if (lastSearch.firstName || lastSearch.lastName || lastSearch.plate) {
+      await doSearch();
+    } else {
+      await fetchData();
+    }
+  } finally {
+    btn.classList.remove('loading');
+  }
 }
 
 ['firstName','lastName','plate'].forEach(id => {
   document.getElementById(id).addEventListener('keydown', e => {
     if (e.key === 'Enter') doSearch();
   });
+});
+
+document.getElementById('plate').addEventListener('input', function() {
+  const pos = this.selectionStart;
+  this.value = this.value.toUpperCase();
+  this.setSelectionRange(pos, pos);
 });
 </script>
 </body>
