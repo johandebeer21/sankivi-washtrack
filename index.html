@@ -1237,10 +1237,7 @@
 </footer>
 
 <script>
-const CSV_PUBLISHED = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQEse0Fis7zTaXkvBsL_N1s97NM7nxsP9RLMQqLslDs6VdAiDAuuTyIgEUC9-MWnY2ANwXZzy33PUuW/pub?gid=0&single=true&output=csv';
-
-let cachedData = null;
-let lastSearchKey = null;
+const CSV_PUBLISHED = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQEse0Fis7zTaXkvBsL_N1s97NM7nxsP9RLMQqLslDs6VdAiDAuuTyIgEUC9-MWnY2ANwXZzy33PUuW/pub?output=csv';
 
 const STAGES = [
   'Vehicle Received',
@@ -1258,255 +1255,138 @@ const STAGES = [
 
 const READY_STAGES = ['Ready for Collection', 'Collected'];
 
+let cachedData = null;
+
+/* ─────────────────────────────────────────────
+   HEADER NORMALISATION (CRITICAL FIX)
+──────────────────────────────────────────── */
 function normalizeKey(str) {
-  return String(str || '')
-    .replace(/^\uFEFF/, '')
+  return (str || '')
+    .toString()
     .trim()
     .toLowerCase()
-    .replace(/[\s_-]+/g, '');
+    .replace(/\s+/g, ' ')
+    .replace(/[^a-z0-9 ]/g, '')
+    .trim();
 }
 
-function normalizeValue(str) {
-  return String(str || '').trim().toLowerCase().replace(/\s+/g, '');
-}
-
+/* ─────────────────────────────────────────────
+   CSV PARSER (ROBUST)
+──────────────────────────────────────────── */
 function parseCSV(text) {
-  const rows = [];
-  let row = [];
-  let cell = '';
-  let inQuotes = false;
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
 
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i];
-    const next = text[i + 1];
+  const rawHeaders = lines[0].split(',');
 
-    if (char === '"') {
-      if (inQuotes && next === '"') {
-        cell += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      row.push(cell);
-      cell = '';
-    } else if ((char === '\n' || char === '\r') && !inQuotes) {
-      if (char === '\r' && next === '\n') i++;
-      row.push(cell);
-      cell = '';
-      if (row.some(v => String(v).trim() !== '')) rows.push(row);
-      row = [];
-    } else {
-      cell += char;
-    }
-  }
+  // Normalize headers ONCE
+  const headers = rawHeaders.map(h => normalizeKey(h));
 
-  row.push(cell);
-  if (row.some(v => String(v).trim() !== '')) rows.push(row);
+  return lines.slice(1).map(line => {
+    const cols = parseCSVLine(line);
 
-  if (rows.length < 2) return [];
-
-  const headers = rows[0].map(normalizeKey);
-
-  return rows.slice(1).map(r => {
     const obj = {};
     headers.forEach((h, i) => {
-      obj[h] = (r[i] || '').toString().trim().replace(/^"|"$/g, '');
+      obj[h] = (cols[i] || '').trim();
     });
+
     return obj;
-  }).filter(r => Object.values(r).some(v => String(v).trim() !== ''));
+  }).filter(r => Object.values(r).some(v => v));
 }
 
-async function tryFetch(url) {
-  const res = await fetch(url + (url.includes('?') ? '&' : '?') + 'cachebust=' + Date.now(), {
-    cache: 'no-store',
-    mode: 'cors'
-  });
+/* Handles quoted CSV properly */
+function parseCSVLine(line) {
+  const result = [];
+  let cur = '';
+  let inQuotes = false;
 
-  if (!res.ok) throw new Error('HTTP ' + res.status);
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
 
-  const text = await res.text();
-  const trimmed = text.trim();
-
-  if (!trimmed) throw new Error('Empty response');
-  if (trimmed.startsWith('<!DOCTYPE html') || trimmed.startsWith('<html')) {
-    throw new Error('Got HTML instead of CSV');
-  }
-
-  return text;
-}
-
-async function fetchData() {
-  if (cachedData && cachedData.length) return cachedData;
-
-  try {
-    const text = await tryFetch(CSV_PUBLISHED);
-    cachedData = parseCSV(text);
-    return cachedData;
-  } catch (err) {
-    console.error('Failed to load Google Sheet CSV:', err);
-    cachedData = getDemoData();
-    return cachedData;
-  }
-}
-
-function getDemoData() {
-  return [
-    {
-      'jobid': 'JOB-001',
-      'timein': '08:30',
-      'clientfirstname': 'Johan',
-      'clientsurname': 'De Beer',
-      'licenseplate': 'ABC 123 GP',
-      'vehiclemake': 'Toyota',
-      'vehicletype': 'SUV',
-      'servicetype': 'Full Valet',
-      'currentstage': 'Interior Cleaning',
-      'bay': 'Bay 2',
-      'staff': 'Sipho M.',
-      'statusnote': 'Vacuuming complete, moving to seat cleaning.',
-      'eta': 'Ready in approximately 20 minutes.',
-      'lastupdated': '10:42',
-    },
-    {
-      'jobid': 'JOB-002',
-      'timein': '09:00',
-      'clientfirstname': 'Thabo',
-      'clientsurname': 'Nkosi',
-      'licenseplate': 'XYZ 456 GP',
-      'vehiclemake': 'BMW',
-      'vehicletype': 'Sedan',
-      'servicetype': 'Express Wash',
-      'currentstage': 'Quality Check',
-      'bay': '—',
-      'staff': 'Lerato K.',
-      'statusnote': 'Final inspection underway.',
-      'eta': 'Ready for collection in approximately 5 minutes.',
-      'lastupdated': '10:55',
-    },
-    {
-      'jobid': 'JOB-003',
-      'timein': '09:15',
-      'clientfirstname': 'Sarah',
-      'clientsurname': 'Van Wyk',
-      'licenseplate': 'DEF 789 MP',
-      'vehiclemake': 'VW Polo',
-      'vehicletype': 'Hatchback',
-      'servicetype': 'Full Valet',
-      'currentstage': 'Ready for Collection',
-      'bay': '—',
-      'staff': 'Nomsa D.',
-      'statusnote': 'Your vehicle is sparkling clean and ready!',
-      'eta': 'Your vehicle is ready — please proceed to reception.',
-      'lastupdated': '11:00',
-    },
-  ];
-}
-
-function getField(record, aliases) {
-  for (const alias of aliases) {
-    const key = normalizeKey(alias);
-    if (record[key] !== undefined && String(record[key]).trim() !== '') {
-      return String(record[key]).trim();
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === ',' && !inQuotes) {
+      result.push(cur);
+      cur = '';
+    } else {
+      cur += char;
     }
   }
-  return '—';
+
+  result.push(cur);
+  return result;
 }
 
-function setLoading(show) {
-  const ol = document.getElementById('loadingOverlay');
-  if (show) ol.classList.add('visible');
-  else ol.classList.remove('visible');
-}
+/* ─────────────────────────────────────────────
+   FETCH SHEET
+──────────────────────────────────────────── */
+async function fetchData() {
+  try {
+    const res = await fetch(CSV_PUBLISHED + '?cache=' + Date.now());
+    const text = await res.text();
 
-function shakCard() {
-  const btn = document.getElementById('searchBtn');
-  btn.style.transform = 'translateX(-6px)';
-  setTimeout(() => btn.style.transform = 'translateX(6px)', 80);
-  setTimeout(() => btn.style.transform = 'translateX(-4px)', 160);
-  setTimeout(() => btn.style.transform = '', 240);
-}
+    cachedData = parseCSV(text);
 
-async function doSearch() {
-  const fn = document.getElementById('firstName').value.trim();
-  const ln = document.getElementById('lastName').value.trim();
-  const plate = document.getElementById('plate').value.trim();
+    console.log("✅ CSV LOADED ROWS:", cachedData.length);
+    console.log("📌 SAMPLE ROW:", cachedData[0]);
 
-  if (!fn && !ln && !plate) {
-    shakCard();
-    return;
+    return cachedData;
+
+  } catch (err) {
+    console.error("❌ FETCH ERROR:", err);
+    return [];
   }
+}
 
-  lastSearchKey = JSON.stringify({ fn, ln, plate });
+/* ─────────────────────────────────────────────
+   SEARCH
+──────────────────────────────────────────── */
+async function doSearch() {
+  const fn = document.getElementById('firstName').value.trim().toLowerCase();
+  const ln = document.getElementById('lastName').value.trim().toLowerCase();
+  const plate = document.getElementById('plate').value.trim().toLowerCase().replace(/\s/g, '');
+
+  if (!fn && !ln && !plate) return;
+
   setLoading(true);
 
-  try {
-    const data = await fetchData();
+  const data = await fetchData();
 
-    const fnNorm = normalizeValue(fn);
-    const lnNorm = normalizeValue(ln);
-    const plateNorm = normalizeValue(plate);
+  const norm = v => (v || '').toLowerCase().replace(/\s/g, '');
 
-    let match = null;
+  let match = null;
 
-    if (plateNorm) {
-      match = data.find(r => {
-        const rPlate = normalizeValue(getField(r, ['license plate', 'plate', 'registration', 'vehicle plate']));
-        return rPlate === plateNorm;
-      });
-    }
-
-    if (!match && (fnNorm || lnNorm)) {
-      match = data.find(r => {
-        const rFn = normalizeValue(getField(r, ['client first name', 'first name', 'firstname', 'name']));
-        const rLn = normalizeValue(getField(r, ['client surname', 'surname', 'last name', 'lastname']));
-        const fnOk = fnNorm ? rFn.includes(fnNorm) : true;
-        const lnOk = lnNorm ? rLn.includes(lnNorm) : true;
-        return fnOk && lnOk;
-      });
-    }
-
-    if (!match && fnNorm && !lnNorm) {
-      match = data.find(r =>
-        normalizeValue(getField(r, ['client first name', 'first name', 'firstname', 'name'])).includes(fnNorm)
-      );
-    }
-
-    if (!match && lnNorm && !fnNorm) {
-      match = data.find(r =>
-        normalizeValue(getField(r, ['client surname', 'surname', 'last name', 'lastname'])).includes(lnNorm)
-      );
-    }
-
-    setLoading(false);
-    showResult(match);
-
-    setTimeout(() => {
-      document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
-
-  } catch (err) {
-    console.error(err);
-    setLoading(false);
-    showResult(null);
-  }
-}
-
-async function refreshData() {
-  const btn = document.getElementById('refreshBtn');
-  btn.classList.add('loading');
-
-  cachedData = null;
-
-  if (lastSearchKey) {
-    await doSearch();
-  } else {
-    await fetchData();
+  // Plate search
+  if (plate) {
+    match = data.find(r => norm(r['license plate']) === plate);
   }
 
-  btn.classList.remove('loading');
+  // Name search
+  if (!match && (fn || ln)) {
+    match = data.find(r => {
+      const rFn = (r['client first name'] || '').toLowerCase();
+      const rLn = (r['client surname'] || '').toLowerCase();
+
+      return (!fn || rFn.includes(fn)) &&
+             (!ln || rLn.includes(ln));
+    });
+  }
+
+  setLoading(false);
+  showResult(match);
 }
 
+/* ─────────────────────────────────────────────
+   DISPLAY HELPERS
+──────────────────────────────────────────── */
+function g(record, key) {
+  const value = record[normalizeKey(key)];
+  return value && value.trim() !== '' ? value : '—';
+}
+
+/* ─────────────────────────────────────────────
+   SHOW RESULT
+──────────────────────────────────────────── */
 function showResult(record) {
   const resultsSection = document.getElementById('resultsSection');
   const emptyState = document.getElementById('emptyState');
@@ -1523,57 +1403,31 @@ function showResult(record) {
   emptyState.classList.remove('visible');
   vehicleCard.style.display = 'block';
 
-  const firstName = getField(record, ['client first name', 'first name', 'firstname', 'name']);
-  const surname   = getField(record, ['client surname', 'surname', 'last name', 'lastname']);
-  const name      = [firstName, surname].filter(v => v !== '—').join(' ') || '—';
-  const stage     = getField(record, ['current stage', 'stage', 'status']);
-  const isReady   = READY_STAGES.map(normalizeValue).includes(normalizeValue(stage));
-  const isCollected = normalizeValue(stage) === normalizeValue('Collected');
+  const stage = g(record, 'Current Stage');
+  const name = [g(record, 'Client First Name'), g(record, 'Client Surname')]
+    .filter(v => v !== '—')
+    .join(' ');
 
   document.getElementById('cName').textContent = name;
-  document.getElementById('cPlate').textContent = getField(record, ['license plate', 'plate', 'registration']);
-  document.getElementById('cMake').textContent = getField(record, ['vehicle make', 'make']);
-  document.getElementById('cType').textContent = getField(record, ['vehicle type', 'type']);
-  document.getElementById('cService').textContent = getField(record, ['service type', 'service']);
-  document.getElementById('cBay').textContent = getField(record, ['bay']);
-  document.getElementById('cJobId').textContent = getField(record, ['job id', 'jobid']);
-  document.getElementById('cStaff').textContent = getField(record, ['staff']);
-  document.getElementById('cTimeIn').textContent = getField(record, ['time in', 'timein']);
+  document.getElementById('cPlate').textContent = g(record, 'License Plate');
+  document.getElementById('cMake').textContent = g(record, 'Vehicle Make');
+  document.getElementById('cType').textContent = g(record, 'Vehicle Type');
+  document.getElementById('cService').textContent = g(record, 'Service Type');
+  document.getElementById('cBay').textContent = g(record, 'Bay');
+  document.getElementById('cJobId').textContent = g(record, 'Job ID');
+  document.getElementById('cStaff').textContent = g(record, 'Staff');
+  document.getElementById('cTimeIn').textContent = g(record, 'Time In');
   document.getElementById('cStageTile').textContent = stage;
-  document.getElementById('cLastUpdated').textContent = 'Last updated ' + getField(record, ['last updated', 'lastupdated']);
-
-  const pill = document.getElementById('cStatusPill');
-  pill.className = 'status-pill';
-  if (isCollected) {
-    pill.classList.add('done');
-    pill.textContent = 'Collected';
-  } else if (isReady) {
-    pill.classList.add('ready');
-    pill.textContent = 'Ready ✓';
-  } else {
-    pill.classList.add('active');
-    pill.textContent = 'In Progress';
-  }
-
-  const eta = getField(record, ['eta']);
-  if (eta !== '—') {
-    document.getElementById('cEta').textContent = eta;
-    document.getElementById('etaStrip').style.display = 'flex';
-  } else {
-    document.getElementById('etaStrip').style.display = 'none';
-  }
-
-  const note = getField(record, ['status note', 'note']);
-  if (note !== '—') {
-    document.getElementById('cNote').textContent = note;
-    document.getElementById('notesStrip').style.display = 'flex';
-  } else {
-    document.getElementById('notesStrip').style.display = 'none';
-  }
+  document.getElementById('cEta').textContent = g(record, 'ETA');
+  document.getElementById('cNote').textContent = g(record, 'Status Note');
+  document.getElementById('cLastUpdated').textContent = 'Last updated ' + g(record, 'Last Updated');
 
   buildStageTrack(stage);
 }
 
+/* ─────────────────────────────────────────────
+   STAGE TRACKER
+──────────────────────────────────────────── */
 function buildStageTrack(currentStage) {
   const track = document.getElementById('stageTrack');
   track.innerHTML = '';
@@ -1581,40 +1435,18 @@ function buildStageTrack(currentStage) {
   const currentIdx = STAGES.indexOf(currentStage);
 
   STAGES.forEach((s, i) => {
-    const isCompleted = i < currentIdx;
-    const isCurrent = i === currentIdx;
-    const isReady = READY_STAGES.includes(s);
-
     const item = document.createElement('div');
     item.className = 'stage-item';
-    if (isCompleted) item.classList.add('completed');
-    if (isCurrent) item.classList.add('current');
-    if (isReady) item.classList.add('ready-stage');
+
+    if (i < currentIdx) item.classList.add('completed');
+    if (i === currentIdx) item.classList.add('current');
 
     const dot = document.createElement('div');
     dot.className = 'stage-dot';
 
-    if (isCompleted) {
-      dot.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
-    } else if (isCurrent) {
-      if (s === 'Ready for Collection') {
-        dot.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
-      } else {
-        dot.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg>`;
-      }
-    }
-
     const label = document.createElement('span');
     label.className = 'stage-label';
     label.textContent = s;
-
-    if (isCurrent && s !== 'Collected') {
-      const badge = document.createElement('span');
-      badge.className = 'stage-current-badge';
-      badge.textContent = 'Current';
-      label.appendChild(document.createTextNode(' '));
-      label.appendChild(badge);
-    }
 
     item.appendChild(dot);
     item.appendChild(label);
@@ -1622,16 +1454,16 @@ function buildStageTrack(currentStage) {
   });
 }
 
+/* ───────────────────────────────────────────── */
+function setLoading(show) {
+  document.getElementById('loadingOverlay')
+    .classList.toggle('visible', show);
+}
+
 ['firstName','lastName','plate'].forEach(id => {
   document.getElementById(id).addEventListener('keydown', e => {
     if (e.key === 'Enter') doSearch();
   });
-});
-
-document.getElementById('plate').addEventListener('input', function() {
-  const pos = this.selectionStart;
-  this.value = this.value.toUpperCase();
-  this.setSelectionRange(pos, pos);
 });
 </script>
 </body>
