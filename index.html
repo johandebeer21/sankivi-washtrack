@@ -1257,34 +1257,9 @@
 
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────
-// Make sure your URL ends with /pub?output=csv
-const CSV_PUBLISHED = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQEse0Fis7zTaXkvBsL_N1s97NM7nxsP9RLMQqLslDs6VdAiDAuuT/pub?output=csv';
-
-// ── UTILITIES ───────────────────────────────────────────────────────────
-// Helper to parse CSV data into an array of objects
-function parseCSV(text) {
-  const lines = text.split(/\r?\n/);
-  if (lines.length === 0) return [];
-  
-  // Get headers and make them lowercase for easier matching
-  const headers = lines[0].split(',').map(header => header.trim().toLowerCase());
-  const results = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    // Simple regex to handle commas inside quotes
-    const currentLine = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-    if (currentLine.length <= 1) continue;
-
-    let obj = {};
-    for (let j = 0; j < headers.length; j++) {
-      let val = currentLine[j] || "";
-      // Remove leading/trailing quotes if they exist
-      obj[headers[j]] = val.replace(/^"|"$/g, '').trim(); 
-    }
-    results.push(obj);
-  }
-  return results;
-}
+// Paste your Apps Script Web App URL below
+// ── CONFIG ──────────────────────────────────────────────────────────────
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzY1msN3vylL0JU8bKWhbICB4Fjc8qYfEbM3-TwyM1FnQpFhW7ByLIzTNYtzW5xWrbI/exec';
 
 // ── UI LOGIC ────────────────────────────────────────────────────────────
 async function doSearch() {
@@ -1306,20 +1281,19 @@ async function doSearch() {
   document.getElementById('emptyState').classList.remove('visible');
 
   try {
-    const response = await fetch(CSV_PUBLISHED);
+    const response = await fetch(WEB_APP_URL);
     if (!response.ok) throw new Error("Network response was not ok");
     
-    const text = await response.text();
-    const data = parseCSV(text);
-
+    const data = await response.json();
     let foundRecord = null;
 
     // Search logic
+    let foundRecord = null;
     for (const row of data) {
-      // NOTE: Ensure these match your exact column names in Google Sheets!
-      const rFirst = (row['first name'] || "").toLowerCase();
-      const rLast = (row['last name'] || "").toLowerCase();
-      const rPlate = (row['license plate'] || "").toLowerCase();
+      // Access keys directly (Apps script preserves your exact header capitalization, or makes them lowercase depending on your sheet)
+      const rFirst = (row['First Name'] || row['first name'] || "").toLowerCase();
+      const rLast = (row['Last Name'] || row['last name'] || "").toLowerCase();
+      const rPlate = (row['License Plate'] || row['license plate'] || "").toLowerCase();
 
       if (plateInput && rPlate === plateInput) {
         foundRecord = row; break;
@@ -1341,48 +1315,53 @@ async function doSearch() {
 
   } catch (error) {
     console.error("Error fetching data:", error);
-    alert("Could not load data. Ensure your sheet is published to the web as a CSV.");
+    alert("Could not load data. Check your permissions and script URL.");
   } finally {
     document.getElementById('loadingOverlay').classList.remove('visible');
   }
 }
 
 function populateCard(data) {
-  // Map spreadsheet columns to your HTML IDs
-  document.getElementById('cName').innerText = `${data['first name'] || ''} ${data['last name'] || ''}`.trim();
-  document.getElementById('cPlate').innerText = data['license plate'] || 'N/A';
+  // Map spreadsheet columns to your HTML IDs (safely handling both casing options)
+  const fName = data['First Name'] || data['first name'] || '';
+  const lName = data['Last Name'] || data['last name'] || '';
+  
+  document.getElementById('cName').innerText = `${fName} ${lName}`.trim();
+  document.getElementById('cPlate').innerText = data['License Plate'] || data['license plate'] || 'N/A';
   
   // Meta data
-  document.getElementById('cMake').innerText = data['make'] || '—';
-  document.getElementById('cType').innerText = data['type'] || '—';
-  document.getElementById('cService').innerText = data['service'] || '—';
-  document.getElementById('cBay').innerText = data['bay'] || '—';
-  document.getElementById('cJobId').innerText = data['job id'] || '—';
+  document.getElementById('cMake').innerText = data['Make'] || data['make'] || '—';
+  document.getElementById('cType').innerText = data['Type'] || data['type'] || '—';
+  document.getElementById('cService').innerText = data['Service'] || data['service'] || '—';
+  document.getElementById('cBay').innerText = data['Bay'] || data['bay'] || '—';
+  document.getElementById('cJobId').innerText = data['Job ID'] || data['job id'] || '—';
   
   // Grid Info
-  document.getElementById('cStaff').innerText = data['staff'] || '—';
-  document.getElementById('cTimeIn').innerText = data['time in'] || '—';
-  document.getElementById('cStageTile').innerText = data['stage'] || '—';
+  document.getElementById('cStaff').innerText = data['Staff'] || data['staff'] || '—';
+  document.getElementById('cTimeIn').innerText = data['Time In'] || data['time in'] || '—';
+  document.getElementById('cStageTile').innerText = data['Stage'] || data['stage'] || '—';
 
   // Notes
-  if (data['notes']) {
+  const notes = data['Notes'] || data['notes'];
+  if (notes) {
     document.getElementById('notesStrip').style.display = 'flex';
-    document.getElementById('cNote').innerText = data['notes'];
+    document.getElementById('cNote').innerText = notes;
   } else {
     document.getElementById('notesStrip').style.display = 'none';
   }
 
   // ETA
-  if (data['eta']) {
+  const eta = data['ETA'] || data['eta'];
+  if (eta) {
     document.getElementById('etaStrip').style.display = 'flex';
-    document.getElementById('cEta').innerText = data['eta'];
+    document.getElementById('cEta').innerText = eta;
   } else {
     document.getElementById('etaStrip').style.display = 'none';
   }
 
   // Update Status Pill
   const statusEl = document.getElementById('cStatusPill');
-  const stage = (data['stage'] || '').toLowerCase();
+  const stage = (data['Stage'] || data['stage'] || '').toLowerCase();
   
   if (stage === 'ready' || stage === 'completed') {
     statusEl.className = 'status-pill ready';
