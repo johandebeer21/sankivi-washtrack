@@ -100,8 +100,13 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 28px 40px;
+    padding: 18px 40px;
     border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  @media (max-width: 700px) {
+    nav { padding: 14px 18px !important; }
+    .nav-logo-img { height: 36px !important; }
   }
 
   .nav-logo {
@@ -110,11 +115,13 @@
     gap: 14px;
   }
 
-  .nav-logo img {
-    height: 48px;
+  .nav-logo-img {
+    height: 44px;
     width: auto;
     filter: brightness(0) invert(1);
-    opacity: 0.95;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    display: block;
   }
 
   .nav-logo-fallback {
@@ -811,7 +818,7 @@
   }
 
   /* ── LAST UPDATED ── */
-  .card-footer {
+  .card-.card-footer-bar {
     padding: 18px 36px;
     background: var(--fog);
     display: flex;
@@ -856,9 +863,13 @@
 
   /* ── PHOTO STRIP ── */
   .photo-strip {
-    padding: 80px 24px;
+    padding: 60px 40px;
     background: var(--ink);
     overflow: hidden;
+  }
+
+  @media (max-width: 700px) {
+    .photo-strip { padding: 40px 20px; }
   }
 
   .photo-strip-inner {
@@ -929,26 +940,39 @@
   }
 
   /* ── FOOTER ── */
-  footer {
+  .page-footer {
     background: var(--ink);
-    border-top: 1px solid rgba(255,255,255,0.06);
-    padding: 40px 24px;
-    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
-  footer .footer-brand {
+  .page-footer .footer-brand {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 500;
     color: var(--white);
     letter-spacing: 0.06em;
-    margin-bottom: 8px;
   }
 
-  footer .footer-copy {
-    font-size: 12px;
+  .page-footer .footer-copy {
+    font-size: 11px;
     color: rgba(255,255,255,0.3);
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 500px) {
+    .page-footer {
+      padding: 16px 20px;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 4px;
+    }
   }
 
   /* ── LOADING STATE ── */
@@ -1010,7 +1034,7 @@
     .notes-strip { padding: 16px 20px; }
     .info-grid { grid-template-columns: 1fr 1fr; padding: 20px; gap: 12px; }
     .info-grid .info-tile:last-child:nth-child(3) { grid-column: span 2; }
-    .card-footer { padding: 16px 20px; }
+    .card-footer-bar { padding: 16px 20px; }
     .photo-strip-inner { grid-template-columns: 1fr; }
     .photo-strip-text { padding-right: 0; margin-bottom: 32px; }
     .photo-mosaic { height: 280px; }
@@ -1042,7 +1066,9 @@
 
   <nav>
     <div class="nav-logo">
-      <img src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/refs/heads/main/Sankivi-Logo.png" alt="Sankivi Car Wash" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+      <img class="nav-logo-img" src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/refs/heads/main/Sankivi-Logo.png" alt="Sankivi Car Wash"
+        onload="this.style.opacity='1'"
+        onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex'"/>
       <div class="nav-logo-fallback" id="logoFallback">
         <span class="brand-name">SANKIVI</span>
         <span class="brand-sub">Car Wash</span>
@@ -1199,7 +1225,7 @@
       </div>
 
       <!-- FOOTER -->
-      <div class="card-footer">
+      <div class="card-footer-bar">
         <div class="last-updated">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
@@ -1238,7 +1264,7 @@
 </section>
 
 <!-- FOOTER -->
-<footer>
+<footer class="page-footer">
   <div class="footer-brand">Sankivi Car Wash</div>
   <p class="footer-copy">© 2025 Sankivi Car Wash · All rights reserved</p>
 </footer>
@@ -1402,22 +1428,35 @@ async function doSearch() {
     // Debug: log parsed headers from first row so we can verify
     if (data.length > 0) console.log('CSV columns found:', Object.keys(data[0]));
 
+    // Normalise helper — strip spaces, lowercase
+    const norm = str => (str || '').toLowerCase().replace(/\s/g, '');
+
     if (plate) {
-      match = data.find(r => {
-        const rPlate = (r['license plate'] || '').toLowerCase().replace(/\s/g, '');
-        return rPlate === plate;
-      });
+      const searchPlate = norm(plate);
+      match = data.find(r => norm(r['license plate']) === searchPlate);
     }
 
     if (!match && (fn || ln)) {
       match = data.find(r => {
         const rFn = (r['client first name'] || '').toLowerCase().trim();
         const rLn = (r['client surname'] || '').toLowerCase().trim();
-        const fnMatch = fn ? rFn.includes(fn) : true;
-        const lnMatch = ln ? rLn.includes(ln) : true;
+        // Match if either field contains the search term (partial, case-insensitive)
+        const fnMatch = fn ? rFn.includes(fn.toLowerCase().trim()) : true;
+        const lnMatch = ln ? rLn.includes(ln.toLowerCase().trim()) : true;
         return fnMatch && lnMatch;
       });
     }
+
+    // Last resort: search by first name only if surname empty, or vice versa
+    if (!match && fn && !ln) {
+      match = data.find(r => (r['client first name'] || '').toLowerCase().trim().includes(fn.toLowerCase().trim()));
+    }
+    if (!match && ln && !fn) {
+      match = data.find(r => (r['client surname'] || '').toLowerCase().trim().includes(ln.toLowerCase().trim()));
+    }
+
+    console.log('Search terms — plate:', plate, '| fn:', fn, '| ln:', ln);
+    console.log('Match found:', match ? 'YES' : 'NO', match || '');
 
     setLoading(false);
     showResult(match);
@@ -1462,14 +1501,11 @@ function showResult(record) {
   emptyState.classList.remove('visible');
   vehicleCard.style.display = 'block';
 
-  // Helper: get value by exact key (case-insensitive fallback)
+  // Helper: get value by exact key, tolerates missing/empty cells
   const g = (key) => {
-    // Try exact key first
-    if (record[key] && record[key].trim()) return record[key].trim();
-    // Try lowercase version
-    const lk = key.toLowerCase();
-    if (record[lk] && record[lk].trim()) return record[lk].trim();
-    return '—';
+    const val = record[key.toLowerCase()] || record[key] || '';
+    const trimmed = String(val).trim();
+    return trimmed.length > 0 ? trimmed : '—';
   };
 
   // Exact column names from the sheet:
