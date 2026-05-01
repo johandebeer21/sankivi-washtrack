@@ -1,1115 +1,218 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Sankivi Car Wash — Vehicle Tracker</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
-  :root {
-    --ink: #0d1117;
-    --ink-soft: #1e2530;
-    --slate: #3a4454;
-    --muted: #6b7a90;
-    --whisper: #c8d0dc;
-    --fog: #eef0f4;
-    --snow: #f8f9fb;
-    --white: #ffffff;
-    --gold: #c9a84c;
-    --gold-light: #e8c97a;
-    --gold-pale: #fdf6e3;
-    --teal: #1a7a6e;
-    --teal-light: #26a99a;
-    --teal-pale: #e6f7f5;
-    --danger: #c0392b;
-    --success: #27ae60;
-    --radius-sm: 8px;
-    --radius-md: 16px;
-    --radius-lg: 24px;
-    --radius-xl: 36px;
-    --shadow-sm: 0 2px 8px rgba(13,17,23,0.06);
-    --shadow-md: 0 8px 32px rgba(13,17,23,0.10);
-    --shadow-lg: 0 24px 64px rgba(13,17,23,0.14);
-    --shadow-gold: 0 8px 32px rgba(201,168,76,0.18);
-    --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--snow);
-    color: var(--ink);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  .hero {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .hero-bg { position: absolute; inset: 0; z-index: 0; }
-  .hero-bg-img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
-
-  .hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      160deg,
-      rgba(10,14,20,0.82) 0%,
-      rgba(10,14,20,0.65) 50%,
-      rgba(10,14,20,0.78) 100%
-    );
-    z-index: 1;
-  }
-
-  .hero-grain {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    opacity: 0.03;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-    background-size: 128px;
-    pointer-events: none;
-  }
-
-  nav {
-    position: relative;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 40px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-
-  @media (max-width: 700px) {
-    nav { padding: 14px 18px !important; }
-    .nav-logo-img { height: 36px !important; }
-  }
-
-  .nav-logo {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .nav-logo-img {
-    height: 44px;
-    width: auto;
-    filter: brightness(0) invert(1);
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    display: block;
-  }
-
-  .nav-logo-fallback {
-    display: none;
-    flex-direction: column;
-  }
-
-  .nav-logo-fallback .brand-name {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 22px;
-    font-weight: 600;
-    color: var(--white);
-    letter-spacing: 0.06em;
-    line-height: 1;
-  }
-
-  .nav-logo-fallback .brand-sub {
-    font-size: 10px;
-    font-weight: 400;
-    color: var(--gold-light);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    margin-top: 3px;
-  }
-
-  .nav-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.14);
-    padding: 8px 16px;
-    border-radius: 100px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-
-  .nav-badge .dot {
-    width: 8px;
-    height: 8px;
-    background: #4ade80;
-    border-radius: 50%;
-    animation: pulse-dot 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.6; transform: scale(0.85); }
-  }
-
-  .nav-badge span {
-    font-size: 12px;
-    font-weight: 500;
-    color: rgba(255,255,255,0.85);
-    letter-spacing: 0.05em;
-  }
-
-  .hero-content {
-    position: relative;
-    z-index: 10;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 24px 80px;
-    text-align: center;
-  }
-
-  .hero-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(201,168,76,0.15);
-    border: 1px solid rgba(201,168,76,0.3);
-    padding: 6px 18px;
-    border-radius: 100px;
-    margin-bottom: 28px;
-    opacity: 0;
-    animation: fade-up 0.7s 0.2s ease forwards;
-  }
-
-  .hero-eyebrow span {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--gold-light);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-  }
-
-  .hero-headline {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(42px, 7vw, 80px);
-    font-weight: 300;
-    color: var(--white);
-    line-height: 1.05;
-    letter-spacing: -0.01em;
-    margin-bottom: 16px;
-    opacity: 0;
-    animation: fade-up 0.7s 0.35s ease forwards;
-  }
-
-  .hero-headline em {
-    font-style: italic;
-    color: var(--gold-light);
-  }
-
-  .hero-sub {
-    font-size: 17px;
-    font-weight: 300;
-    color: rgba(255,255,255,0.62);
-    max-width: 480px;
-    line-height: 1.7;
-    margin-bottom: 52px;
-    opacity: 0;
-    animation: fade-up 0.7s 0.5s ease forwards;
-  }
-
-  .search-card {
-    width: 100%;
-    max-width: 580px;
-    background: rgba(255,255,255,0.07);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255,255,255,0.14);
-    border-radius: var(--radius-xl);
-    padding: 40px 36px;
-    box-shadow: 0 32px 80px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12);
-    opacity: 0;
-    animation: fade-up 0.7s 0.65s ease forwards;
-  }
-
-  .search-card-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 20px;
-    font-weight: 500;
-    color: var(--white);
-    text-align: center;
-    margin-bottom: 28px;
-    letter-spacing: 0.03em;
-  }
-
-  .search-divider {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin: 20px 0;
-  }
-
-  .search-divider::before,
-  .search-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: rgba(255,255,255,0.14);
-  }
-
-  .search-divider span {
-    font-size: 11px;
-    font-weight: 500;
-    color: rgba(255,255,255,0.4);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .input-group {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .input-wrap {
-    flex: 1;
-    position: relative;
-  }
-
-  .input-wrap label {
-    display: block;
-    font-size: 11px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.5);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-
-  .input-wrap input {
-    width: 100%;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.14);
-    border-radius: var(--radius-md);
-    padding: 14px 18px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 400;
-    color: var(--white);
-    outline: none;
-    transition: var(--transition);
-    -webkit-appearance: none;
-  }
-
-  .input-wrap input::placeholder { color: rgba(255,255,255,0.3); }
-
-  .input-wrap input:focus {
-    border-color: var(--gold);
-    background: rgba(255,255,255,0.12);
-    box-shadow: 0 0 0 3px rgba(201,168,76,0.18);
-  }
-
-  .input-solo { margin-bottom: 0; }
-
-  .input-solo .input-wrap input {
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    font-weight: 600;
-    font-size: 16px;
-  }
-
-  .search-btn {
-    width: 100%;
-    margin-top: 24px;
-    padding: 16px 24px;
-    background: linear-gradient(135deg, var(--gold) 0%, #b8962e 100%);
-    border: none;
-    border-radius: var(--radius-md);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--ink);
-    letter-spacing: 0.06em;
-    cursor: pointer;
-    transition: var(--transition);
-    box-shadow: 0 8px 24px rgba(201,168,76,0.35);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    -webkit-appearance: none;
-  }
-
-  .search-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(201,168,76,0.48);
-    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
-  }
-
-  .search-btn:active { transform: translateY(0); }
-
-  .search-btn svg { width: 18px; height: 18px; }
-
-  .scroll-hint {
-    position: relative;
-    z-index: 10;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-bottom: 32px;
-    opacity: 0;
-    animation: fade-in 1s 1.4s ease forwards;
-  }
-
-  .scroll-hint span {
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.35);
-    margin-bottom: 10px;
-  }
-
-  .scroll-arrow {
-    width: 1px;
-    height: 32px;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
-    animation: scroll-fade 1.8s ease-in-out infinite;
-  }
-
-  @keyframes scroll-fade {
-    0%, 100% { opacity: 0.4; transform: scaleY(1); }
-    50% { opacity: 1; transform: scaleY(1.15); }
-  }
-
-  .results-section {
-    min-height: 100vh;
-    padding: 80px 24px;
-    background: var(--snow);
-    display: none;
-  }
-
-  .results-section.visible { display: block; }
-
-  .results-inner {
-    max-width: 760px;
-    margin: 0 auto;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 80px 24px;
-    display: none;
-  }
-
-  .empty-state.visible { display: block; }
-
-  .empty-icon {
-    width: 72px;
-    height: 72px;
-    background: var(--fog);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 24px;
-  }
-
-  .empty-icon svg { width: 32px; height: 32px; color: var(--muted); }
-
-  .empty-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 26px;
-    font-weight: 500;
-    color: var(--ink);
-    margin-bottom: 10px;
-  }
-
-  .empty-sub {
-    font-size: 15px;
-    color: var(--muted);
-    max-width: 360px;
-    margin: 0 auto;
-    line-height: 1.7;
-  }
-
-  .vehicle-card {
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    overflow: hidden;
-    margin-bottom: 24px;
-    animation: card-in 0.5s ease forwards;
-  }
-
-  @keyframes card-in {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .card-header {
-    background: linear-gradient(135deg, var(--ink) 0%, var(--ink-soft) 100%);
-    padding: 32px 36px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .card-header::before {
-    content: '';
-    position: absolute;
-    top: -40px;
-    right: -40px;
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    background: rgba(201,168,76,0.08);
-  }
-
-  .card-header::after {
-    content: '';
-    position: absolute;
-    bottom: -60px;
-    left: 20px;
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.03);
-  }
-
-  .card-header-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 24px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .customer-name {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 30px;
-    font-weight: 500;
-    color: var(--white);
-    line-height: 1.1;
-    margin-bottom: 6px;
-  }
-
-  .vehicle-plate {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--gold);
-    padding: 5px 14px;
-    border-radius: var(--radius-sm);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--ink);
-    letter-spacing: 0.14em;
-  }
-
-  .status-pill {
-    padding: 8px 16px;
-    border-radius: 100px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-
-  .status-pill.active {
-    background: rgba(74,222,128,0.15);
-    border: 1px solid rgba(74,222,128,0.3);
-    color: #4ade80;
-  }
-
-  .status-pill.ready {
-    background: rgba(201,168,76,0.18);
-    border: 1px solid rgba(201,168,76,0.4);
-    color: var(--gold-light);
-  }
-
-  .status-pill.done {
-    background: rgba(107,114,144,0.2);
-    border: 1px solid rgba(107,114,144,0.3);
-    color: var(--whisper);
-  }
-
-  .vehicle-meta {
-    display: flex;
-    gap: 24px;
-    flex-wrap: wrap;
-    position: relative;
-    z-index: 1;
-  }
-
-  .meta-item {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-
-  .meta-label {
-    font-size: 10px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.4);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
-
-  .meta-value {
-    font-size: 14px;
-    font-weight: 500;
-    color: rgba(255,255,255,0.88);
-  }
-
-  .progress-section {
-    padding: 36px 36px 28px;
-    border-bottom: 1px solid var(--fog);
-  }
-
-  .progress-title {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    margin-bottom: 28px;
-  }
-
-  .stage-track {
-    position: relative;
-    padding-left: 28px;
-  }
-
-  .stage-track::before {
-    content: '';
-    position: absolute;
-    left: 9px;
-    top: 10px;
-    bottom: 10px;
-    width: 2px;
-    background: var(--fog);
-    border-radius: 2px;
-  }
-
-  .stage-item {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 4px;
-    padding: 10px 0;
-  }
-
-  .stage-dot {
-    position: absolute;
-    left: -28px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--fog);
-    border: 2px solid var(--whisper);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition);
-    flex-shrink: 0;
-    z-index: 1;
-  }
-
-  .stage-dot svg {
-    width: 10px;
-    height: 10px;
-    opacity: 0;
-    transition: var(--transition);
-  }
-
-  .stage-label {
-    font-size: 14px;
-    color: var(--whisper);
-    font-weight: 400;
-    transition: var(--transition);
-  }
-
-  .stage-item.completed .stage-dot {
-    background: var(--teal-light);
-    border-color: var(--teal-light);
-  }
-
-  .stage-item.completed .stage-dot svg {
-    opacity: 1;
-    color: white;
-  }
-
-  .stage-item.completed .stage-label {
-    color: var(--slate);
-  }
-
-  .stage-item.current .stage-dot {
-    background: var(--gold);
-    border-color: var(--gold);
-    box-shadow: 0 0 0 4px rgba(201,168,76,0.2);
-    animation: pulse-stage 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse-stage {
-    0%, 100% { box-shadow: 0 0 0 4px rgba(201,168,76,0.2); }
-    50% { box-shadow: 0 0 0 8px rgba(201,168,76,0.08); }
-  }
-
-  .stage-item.current .stage-dot svg {
-    opacity: 1;
-    color: var(--ink);
-  }
-
-  .stage-item.current .stage-label {
-    font-weight: 600;
-    color: var(--ink);
-    font-size: 15px;
-  }
-
-  .stage-item.ready-stage.current .stage-dot {
-    background: var(--gold);
-    border-color: var(--gold);
-  }
-
-  .stage-item.ready-stage.completed .stage-dot {
-    background: var(--gold);
-    border-color: var(--gold);
-  }
-
-  .stage-current-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: var(--gold-pale);
-    border: 1px solid rgba(201,168,76,0.3);
-    padding: 3px 10px;
-    border-radius: 100px;
-    font-size: 11px;
-    font-weight: 600;
-    color: #8a6a1a;
-    letter-spacing: 0.06em;
-    margin-left: 4px;
-  }
-
-  .eta-strip {
-    padding: 28px 36px;
-    border-bottom: 1px solid var(--fog);
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .eta-icon {
-    width: 52px;
-    height: 52px;
-    flex-shrink: 0;
-    background: var(--gold-pale);
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .eta-icon svg { width: 24px; height: 24px; color: var(--gold); }
-
-  .eta-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-
-  .eta-message {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 22px;
-    font-weight: 500;
-    color: var(--ink);
-    line-height: 1.3;
-  }
-
-  .notes-strip {
-    padding: 22px 36px;
-    background: var(--teal-pale);
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-  }
-
-  .notes-strip svg {
-    width: 18px;
-    height: 18px;
-    color: var(--teal);
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .notes-text {
-    font-size: 14px;
-    color: var(--teal);
-    font-weight: 500;
-    line-height: 1.6;
-  }
-
-  .info-grid {
-    padding: 28px 36px 32px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-  }
-
-  .info-tile {
-    background: var(--snow);
-    border-radius: var(--radius-md);
-    padding: 18px 16px;
-    border: 1px solid var(--fog);
-  }
-
-  .info-tile-label {
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--muted);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-
-  .info-tile-value {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--ink);
-    line-height: 1.3;
-  }
-
-  .card-footer-bar {
-    padding: 18px 36px;
-    background: var(--fog);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .last-updated {
-    font-size: 12px;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    gap: 7px;
-  }
-
-  .last-updated svg { width: 14px; height: 14px; }
-
-  .refresh-btn {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 8px 16px;
-    background: var(--white);
-    border: 1px solid var(--whisper);
-    border-radius: 100px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--slate);
-    cursor: pointer;
-    transition: var(--transition);
-    letter-spacing: 0.04em;
-  }
-
-  .refresh-btn:hover { background: var(--ink); color: var(--white); border-color: var(--ink); }
-  .refresh-btn svg { width: 13px; height: 13px; }
-  .refresh-btn.loading svg { animation: spin 0.8s linear infinite; }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .photo-strip {
-    padding: 60px 40px;
-    background: var(--ink);
-    overflow: hidden;
-  }
-
-  @media (max-width: 700px) {
-    .photo-strip { padding: 40px 20px; }
-  }
-
-  .photo-strip-inner {
-    max-width: 1100px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    align-items: center;
-  }
-
-  .photo-strip-text { padding-right: 40px; }
-
-  .photo-strip-eyebrow {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--gold);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-  }
-
-  .photo-strip-headline {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(32px, 3vw, 48px);
-    font-weight: 300;
-    color: var(--white);
-    line-height: 1.2;
-    margin-bottom: 16px;
-  }
-
-  .photo-strip-headline em { font-style: italic; color: var(--gold-light); }
-
-  .photo-strip-body {
-    font-size: 15px;
-    color: rgba(255,255,255,0.5);
-    line-height: 1.8;
-  }
-
-  .photo-mosaic {
-    position: relative;
-    height: 400px;
-  }
-
-  .photo-mosaic img {
-    position: absolute;
-    object-fit: cover;
-    border-radius: var(--radius-md);
-  }
-
-  .photo-mosaic .ph-1 {
-    width: 65%;
-    height: 75%;
-    top: 0;
-    right: 0;
-    box-shadow: var(--shadow-lg);
-  }
-
-  .photo-mosaic .ph-2 {
-    width: 50%;
-    height: 58%;
-    bottom: 0;
-    left: 0;
-    box-shadow: var(--shadow-lg);
-    border: 3px solid rgba(201,168,76,0.25);
-  }
-
-  .page-footer {
-    background: var(--ink);
-    border-top: 1px solid rgba(255,255,255,0.08);
-    padding: 20px 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .page-footer .footer-brand {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--white);
-    letter-spacing: 0.06em;
-  }
-
-  .page-footer .footer-copy {
-    font-size: 11px;
-    color: rgba(255,255,255,0.3);
-    letter-spacing: 0.05em;
-  }
-
-  @media (max-width: 500px) {
-    .page-footer {
-      padding: 16px 20px;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 4px;
-    }
-  }
-
-  .loading-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    background: rgba(13,17,23,0.6);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .loading-overlay.visible { display: flex; }
-
-  .loading-spinner {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    border: 3px solid rgba(201,168,76,0.2);
-    border-top-color: var(--gold);
-    animation: spin 0.8s linear infinite;
-  }
-
-  .loading-text {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 20px;
-    font-weight: 400;
-    color: var(--white);
-    letter-spacing: 0.06em;
-  }
-
-  @keyframes fade-up {
-    from { opacity: 0; transform: translateY(28px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  @media (max-width: 700px) {
-    nav { padding: 20px 20px; }
-    .nav-logo img { height: 38px; }
-    .search-card { padding: 28px 20px; }
-    .input-group { flex-direction: column; gap: 0; }
-    .input-group .input-wrap:first-child { margin-bottom: 16px; }
-    .card-header { padding: 24px 20px; }
-    .card-header-top { flex-direction: column; gap: 12px; }
-    .progress-section { padding: 24px 20px; }
-    .eta-strip { padding: 20px; }
-    .notes-strip { padding: 16px 20px; }
-    .info-grid { grid-template-columns: 1fr 1fr; padding: 20px; gap: 12px; }
-    .info-grid .info-tile:last-child:nth-child(3) { grid-column: span 2; }
-    .card-footer-bar { padding: 16px 20px; }
-    .photo-strip-inner { grid-template-columns: 1fr; }
-    .photo-strip-text { padding-right: 0; margin-bottom: 32px; }
-    .photo-mosaic { height: 280px; }
-    .vehicle-meta { gap: 16px; }
-  }
-
-  @media (max-width: 420px) {
-    .hero-headline { font-size: 38px; }
-    .info-grid { grid-template-columns: 1fr; }
-    .info-grid .info-tile:last-child:nth-child(3) { grid-column: span 1; }
+  :root{
+    --ink:#0d1117; --ink2:#1e2530; --slate:#3a4454; --muted:#6b7a90; --whisper:#c8d0dc;
+    --fog:#eef0f4; --snow:#f8f9fb; --white:#fff; --gold:#c9a84c; --gold2:#e8c97a; --goldp:#fdf6e3;
+    --teal:#1a7a6e; --tealp:#e6f7f5; --radius-md:16px; --radius-lg:24px; --radius-xl:36px;
+    --shadow-lg:0 24px 64px rgba(13,17,23,.14); --transition:all .25s ease;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'DM Sans',sans-serif;background:var(--snow);color:var(--ink);overflow-x:hidden}
+  .hero{position:relative;min-height:100vh;display:flex;flex-direction:column}
+  .hero-bg,.hero-overlay,.hero-grain{position:absolute;inset:0}
+  .hero-bg{z-index:0}
+  .hero-bg img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+  .hero-overlay{z-index:1;background:linear-gradient(160deg,rgba(10,14,20,.82),rgba(10,14,20,.65),rgba(10,14,20,.78))}
+  .hero-grain{z-index:2;opacity:.03;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-size:128px}
+  nav{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:18px 40px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .nav-logo{display:flex;align-items:center;gap:14px;min-width:0}
+  .nav-logo-img{height:44px;width:auto;max-width:220px;object-fit:contain;display:block;opacity:1}
+  .nav-logo-fallback{display:none;flex-direction:column}
+  .nav-logo-fallback .brand-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--white);letter-spacing:.06em;line-height:1}
+  .nav-logo-fallback .brand-sub{font-size:10px;font-weight:400;color:var(--gold2);letter-spacing:.2em;text-transform:uppercase;margin-top:3px}
+  .nav-badge{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:8px 16px;border-radius:999px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);flex-shrink:0}
+  .nav-badge .dot{width:8px;height:8px;background:#4ade80;border-radius:50%;animation:pulse 2s infinite ease-in-out}
+  .nav-badge span{font-size:12px;font-weight:500;color:rgba(255,255,255,.85);letter-spacing:.05em}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
+  .hero-content{position:relative;z-index:10;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px 80px;text-align:center}
+  .hero-eyebrow{display:inline-flex;align-items:center;gap:10px;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);padding:6px 18px;border-radius:999px;margin-bottom:28px;animation:fadeUp .7s .2s ease forwards;opacity:0}
+  .hero-eyebrow span{font-size:11px;font-weight:600;color:var(--gold2);letter-spacing:.18em;text-transform:uppercase}
+  .hero-headline{font-family:'Cormorant Garamond',serif;font-size:clamp(42px,7vw,80px);font-weight:400;color:var(--white);line-height:1.05;letter-spacing:-.01em;margin-bottom:16px;animation:fadeUp .7s .35s ease forwards;opacity:0}
+  .hero-headline em{font-style:italic;color:var(--gold2)}
+  .hero-sub{font-size:17px;font-weight:400;color:rgba(255,255,255,.62);max-width:480px;line-height:1.7;margin-bottom:52px;animation:fadeUp .7s .5s ease forwards;opacity:0}
+  .search-card{width:100%;max-width:580px;background:rgba(255,255,255,.07);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.14);border-radius:var(--radius-xl);padding:40px 36px;box-shadow:0 32px 80px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.12);animation:fadeUp .7s .65s ease forwards;opacity:0}
+  .search-card-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;color:var(--white);text-align:center;margin-bottom:28px;letter-spacing:.03em}
+  .search-divider{display:flex;align-items:center;gap:14px;margin:20px 0}
+  .search-divider::before,.search-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.14)}
+  .search-divider span{font-size:11px;font-weight:500;color:rgba(255,255,255,.4);letter-spacing:.12em;text-transform:uppercase}
+  .input-group{display:flex;gap:12px;margin-bottom:16px}
+  .input-wrap{flex:1}
+  .input-wrap label{display:block;font-size:11px;font-weight:600;color:rgba(255,255,255,.5);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+  .input-wrap input{width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:var(--radius-md);padding:14px 18px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--white);outline:none;transition:var(--transition)}
+  .input-wrap input::placeholder{color:rgba(255,255,255,.3)}
+  .input-wrap input:focus{border-color:var(--gold);background:rgba(255,255,255,.12);box-shadow:0 0 0 3px rgba(201,168,76,.18)}
+  .input-solo{margin-bottom:0}
+  .input-solo .input-wrap input{letter-spacing:.12em;text-transform:uppercase;font-weight:600;font-size:16px}
+  .search-btn{width:100%;margin-top:24px;padding:16px 24px;background:linear-gradient(135deg,var(--gold) 0%,#b8962e 100%);border:none;border-radius:var(--radius-md);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:var(--ink);letter-spacing:.06em;cursor:pointer;transition:var(--transition);box-shadow:0 8px 24px rgba(201,168,76,.35);display:flex;align-items:center;justify-content:center;gap:10px}
+  .search-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(201,168,76,.48)}
+  .search-btn svg{width:18px;height:18px}
+  .scroll-hint{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;padding-bottom:32px;animation:fadeIn 1s 1.4s ease forwards;opacity:0}
+  .scroll-hint span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:10px}
+  .scroll-arrow{width:1px;height:32px;background:linear-gradient(to bottom,rgba(255,255,255,.4),transparent);animation:scrollFade 1.8s infinite ease-in-out}
+  @keyframes scrollFade{0%,100%{opacity:.4;transform:scaleY(1)}50%{opacity:1;transform:scaleY(1.15)}}
+  .results-section{min-height:100vh;padding:80px 24px;background:var(--snow);display:none}
+  .results-section.visible{display:block}
+  .results-inner{max-width:760px;margin:0 auto}
+  .empty-state{text-align:center;padding:80px 24px;display:none}
+  .empty-state.visible{display:block}
+  .empty-icon{width:72px;height:72px;background:var(--fog);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px}
+  .empty-icon svg{width:32px;height:32px;color:var(--muted)}
+  .empty-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:var(--ink);margin-bottom:10px}
+  .empty-sub{font-size:15px;color:var(--muted);max-width:360px;margin:0 auto;line-height:1.7}
+  .vehicle-card{background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow:hidden;margin-bottom:24px;display:none;animation:cardIn .5s ease forwards}
+  @keyframes cardIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  .card-header{background:linear-gradient(135deg,var(--ink) 0%,var(--ink2) 100%);padding:32px 36px;position:relative;overflow:hidden}
+  .card-header::before,.card-header::after{content:'';position:absolute;border-radius:50%}
+  .card-header::before{top:-40px;right:-40px;width:200px;height:200px;background:rgba(201,168,76,.08)}
+  .card-header::after{bottom:-60px;left:20px;width:140px;height:140px;background:rgba(255,255,255,.03)}
+  .card-header-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;position:relative;z-index:1;gap:12px}
+  .customer-name{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:500;color:var(--white);line-height:1.1;margin-bottom:6px}
+  .vehicle-plate{display:inline-flex;align-items:center;gap:8px;background:var(--gold);padding:5px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:700;color:var(--ink);letter-spacing:.14em}
+  .status-pill{padding:8px 16px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+  .status-pill.active{background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.3);color:#4ade80}
+  .status-pill.ready{background:rgba(201,168,76,.18);border:1px solid rgba(201,168,76,.4);color:var(--gold2)}
+  .status-pill.done{background:rgba(107,114,144,.2);border:1px solid rgba(107,114,144,.3);color:var(--whisper)}
+  .vehicle-meta{display:flex;gap:24px;flex-wrap:wrap;position:relative;z-index:1}
+  .meta-item{display:flex;flex-direction:column;gap:3px}
+  .meta-label{font-size:10px;font-weight:600;color:rgba(255,255,255,.4);letter-spacing:.14em;text-transform:uppercase}
+  .meta-value{font-size:14px;font-weight:500;color:rgba(255,255,255,.88)}
+  .progress-section{padding:36px 36px 28px;border-bottom:1px solid var(--fog)}
+  .progress-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:28px}
+  .stage-track{position:relative;padding-left:28px}
+  .stage-track::before{content:'';position:absolute;left:9px;top:10px;bottom:10px;width:2px;background:var(--fog);border-radius:2px}
+  .stage-item{position:relative;display:flex;align-items:center;gap:16px;margin-bottom:4px;padding:10px 0}
+  .stage-dot{position:absolute;left:-28px;width:20px;height:20px;border-radius:50%;background:var(--fog);border:2px solid var(--whisper);display:flex;align-items:center;justify-content:center;transition:var(--transition);flex-shrink:0;z-index:1}
+  .stage-dot svg{width:10px;height:10px;opacity:0;transition:var(--transition)}
+  .stage-label{font-size:14px;color:var(--whisper);font-weight:400;transition:var(--transition)}
+  .stage-item.completed .stage-dot{background:var(--teal);border-color:var(--teal)}
+  .stage-item.completed .stage-dot svg{opacity:1;color:white}
+  .stage-item.completed .stage-label{color:var(--slate)}
+  .stage-item.current .stage-dot{background:var(--gold);border-color:var(--gold);box-shadow:0 0 0 4px rgba(201,168,76,.2);animation:stagePulse 2s infinite ease-in-out}
+  @keyframes stagePulse{0%,100%{box-shadow:0 0 0 4px rgba(201,168,76,.2)}50%{box-shadow:0 0 0 8px rgba(201,168,76,.08)}}
+  .stage-item.current .stage-dot svg{opacity:1;color:var(--ink)}
+  .stage-item.current .stage-label{font-weight:600;color:var(--ink);font-size:15px}
+  .stage-current-badge{display:inline-flex;align-items:center;background:var(--goldp);border:1px solid rgba(201,168,76,.3);padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;color:#8a6a1a;letter-spacing:.06em;margin-left:4px}
+  .eta-strip{padding:28px 36px;border-bottom:1px solid var(--fog);display:flex;align-items:center;gap:20px}
+  .eta-icon{width:52px;height:52px;flex-shrink:0;background:var(--goldp);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center}
+  .eta-icon svg{width:24px;height:24px;color:var(--gold)}
+  .eta-label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+  .eta-message{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--ink);line-height:1.3}
+  .notes-strip{padding:22px 36px;background:var(--tealp);display:flex;align-items:flex-start;gap:14px}
+  .notes-strip svg{width:18px;height:18px;color:var(--teal);flex-shrink:0;margin-top:2px}
+  .notes-text{font-size:14px;color:var(--teal);font-weight:500;line-height:1.6}
+  .info-grid{padding:28px 36px 32px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .info-tile{background:var(--snow);border-radius:var(--radius-md);padding:18px 16px;border:1px solid var(--fog)}
+  .info-tile-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+  .info-tile-value{font-size:15px;font-weight:700;color:var(--ink);line-height:1.3}
+  .card-footer-bar{padding:18px 36px;background:var(--fog);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .last-updated{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px}
+  .last-updated svg{width:14px;height:14px}
+  .refresh-btn{display:flex;align-items:center;gap:7px;padding:8px 16px;background:var(--white);border:1px solid var(--whisper);border-radius:999px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;color:var(--slate);cursor:pointer;transition:var(--transition);letter-spacing:.04em}
+  .refresh-btn:hover{background:var(--ink);color:var(--white);border-color:var(--ink)}
+  .refresh-btn svg{width:13px;height:13px}
+  .refresh-btn.loading svg{animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .photo-strip{padding:60px 40px;background:var(--ink);overflow:hidden}
+  .photo-strip-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}
+  .photo-strip-text{padding-right:40px}
+  .photo-strip-eyebrow{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;margin-bottom:16px}
+  .photo-strip-headline{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,3vw,48px);font-weight:400;color:var(--white);line-height:1.2;margin-bottom:16px}
+  .photo-strip-headline em{font-style:italic;color:var(--gold2)}
+  .photo-strip-body{font-size:15px;color:rgba(255,255,255,.5);line-height:1.8}
+  .photo-mosaic{position:relative;height:400px}
+  .photo-mosaic img{position:absolute;object-fit:cover;border-radius:var(--radius-md)}
+  .photo-mosaic .ph-1{width:65%;height:75%;top:0;right:0;box-shadow:var(--shadow-lg)}
+  .photo-mosaic .ph-2{width:50%;height:58%;bottom:0;left:0;box-shadow:var(--shadow-lg);border:3px solid rgba(201,168,76,.25)}
+  .page-footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.08);padding:20px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .footer-brand{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;color:var(--white);letter-spacing:.06em}
+  .footer-copy{font-size:11px;color:rgba(255,255,255,.3);letter-spacing:.05em}
+  .loading-overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(13,17,23,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:center;justify-content:center;flex-direction:column;gap:20px}
+  .loading-overlay.visible{display:flex}
+  .loading-spinner{width:56px;height:56px;border-radius:50%;border:3px solid rgba(201,168,76,.2);border-top-color:var(--gold);animation:spin .8s linear infinite}
+  .loading-text{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--white);letter-spacing:.06em}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (max-width:700px){
+    nav{padding:14px 18px}
+    .nav-logo-img{height:36px}
+    .search-card{padding:28px 20px}
+    .input-group{flex-direction:column;gap:0}
+    .input-group .input-wrap:first-child{margin-bottom:16px}
+    .card-header{padding:24px 20px}
+    .card-header-top{flex-direction:column;gap:12px}
+    .progress-section{padding:24px 20px}
+    .eta-strip{padding:20px}
+    .notes-strip{padding:16px 20px}
+    .info-grid{grid-template-columns:1fr 1fr;padding:20px;gap:12px}
+    .info-grid .info-tile:last-child:nth-child(3){grid-column:span 2}
+    .card-footer-bar{padding:16px 20px}
+    .photo-strip-inner{grid-template-columns:1fr}
+    .photo-strip-text{padding-right:0;margin-bottom:32px}
+    .photo-mosaic{height:280px}
+    .vehicle-meta{gap:16px}
+  }
+  @media (max-width:420px){
+    .hero-headline{font-size:38px}
+    .info-grid{grid-template-columns:1fr}
+    .info-grid .info-tile:last-child:nth-child(3){grid-column:span 1}
   }
 </style>
 </head>
 <body>
-
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-spinner"></div>
   <p class="loading-text">Locating your vehicle…</p>
 </div>
-
 <section class="hero">
   <div class="hero-bg">
-    <img class="hero-bg-img" src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/refs/heads/main/Carwash1.jpg" alt="Sankivi Car Wash" onerror="this.style.display='none'"/>
+    <img class="hero-bg-img" src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/main/Carwash1.jpg" alt="Sankivi Car Wash" onerror="this.style.display='none'" />
     <div class="hero-overlay"></div>
     <div class="hero-grain"></div>
   </div>
-
   <nav>
     <div class="nav-logo">
-      <img class="nav-logo-img" src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/refs/heads/main/Sankivi-Logo.png" alt="Sankivi Car Wash"
-        onload="this.style.opacity='1'"
-        onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex'"/>
+      <img id="navLogo" class="nav-logo-img" src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/main/Sankivi-Logo.png" alt="Sankivi Car Wash" onload="this.style.opacity='1'" onerror="handleLogoError(this)" />
       <div class="nav-logo-fallback" id="logoFallback">
         <span class="brand-name">SANKIVI</span>
         <span class="brand-sub">Car Wash</span>
       </div>
     </div>
-    <div class="nav-badge">
-      <div class="dot"></div>
-      <span>Live Tracking</span>
-    </div>
+    <div class="nav-badge"><div class="dot"></div><span>Live Tracking</span></div>
   </nav>
-
   <div class="hero-content">
-    <div class="hero-eyebrow">
-      <span>✦ Real-Time Vehicle Tracker</span>
-    </div>
-
-    <h1 class="hero-headline">
-      Where is<br/><em>your vehicle?</em>
-    </h1>
-    <p class="hero-sub">
-      Enter your details below to see exactly where your car is in our wash process — beautifully updated in real time.
-    </p>
-
+    <div class="hero-eyebrow"><span>✦ Real-Time Vehicle Tracker</span></div>
+    <h1 class="hero-headline">Where is<br /><em>your vehicle?</em></h1>
+    <p class="hero-sub">Enter your details below to see exactly where your car is in our wash process — beautifully updated in real time.</p>
     <div class="search-card">
       <p class="search-card-title">Find Your Vehicle</p>
-
       <div class="input-group">
-        <div class="input-wrap">
-          <label for="firstName">First Name</label>
-          <input type="text" id="firstName" placeholder="e.g. Johan" autocomplete="given-name" />
-        </div>
-        <div class="input-wrap">
-          <label for="lastName">Surname</label>
-          <input type="text" id="lastName" placeholder="e.g. De Beer" autocomplete="family-name" />
-        </div>
+        <div class="input-wrap"><label for="firstName">First Name</label><input id="firstName" type="text" placeholder="e.g. Johan" autocomplete="given-name" /></div>
+        <div class="input-wrap"><label for="lastName">Surname</label><input id="lastName" type="text" placeholder="e.g. De Beer" autocomplete="family-name" /></div>
       </div>
-
       <div class="search-divider"><span>or search by plate</span></div>
-
-      <div class="input-group input-solo">
-        <div class="input-wrap">
-          <label for="plate">License Plate</label>
-          <input type="text" id="plate" placeholder="e.g. ABC 123 GP" autocomplete="off" />
-        </div>
-      </div>
-
-      <button class="search-btn" id="searchBtn" onclick="doSearch()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/>
-        </svg>
-        Track My Vehicle
-      </button>
+      <div class="input-group input-solo"><div class="input-wrap"><label for="plate">License Plate</label><input id="plate" type="text" placeholder="e.g. ABC 123 GP" autocomplete="off" /></div></div>
+      <button class="search-btn" id="searchBtn" onclick="doSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>Track My Vehicle</button>
     </div>
   </div>
-
-  <div class="scroll-hint">
-    <span>Results appear below</span>
-    <div class="scroll-arrow"></div>
-  </div>
+  <div class="scroll-hint"><span>Results appear below</span><div class="scroll-arrow"></div></div>
 </section>
-
 <section class="results-section" id="resultsSection">
   <div class="results-inner">
-
     <div class="empty-state" id="emptyState">
-      <div class="empty-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/>
-        </svg>
-      </div>
+      <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg></div>
       <h3 class="empty-title">No Vehicle Found</h3>
       <p class="empty-sub">We couldn't find a vehicle matching your details. Please double-check your name or license plate and try again.</p>
     </div>
-
-    <div class="vehicle-card" id="vehicleCard" style="display:none">
+    <div class="vehicle-card" id="vehicleCard">
       <div class="card-header">
         <div class="card-header-top">
           <div class="customer-info">
@@ -1119,459 +222,185 @@
           <div class="status-pill active" id="cStatusPill">In Progress</div>
         </div>
         <div class="vehicle-meta">
-          <div class="meta-item">
-            <span class="meta-label">Make</span>
-            <span class="meta-value" id="cMake">—</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Type</span>
-            <span class="meta-value" id="cType">—</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Service</span>
-            <span class="meta-value" id="cService">—</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Bay</span>
-            <span class="meta-value" id="cBay">—</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Job ID</span>
-            <span class="meta-value" id="cJobId">—</span>
-          </div>
+          <div class="meta-item"><span class="meta-label">Make</span><span class="meta-value" id="cMake">—</span></div>
+          <div class="meta-item"><span class="meta-label">Type</span><span class="meta-value" id="cType">—</span></div>
+          <div class="meta-item"><span class="meta-label">Service</span><span class="meta-value" id="cService">—</span></div>
+          <div class="meta-item"><span class="meta-label">Bay</span><span class="meta-value" id="cBay">—</span></div>
+          <div class="meta-item"><span class="meta-label">Job ID</span><span class="meta-value" id="cJobId">—</span></div>
         </div>
       </div>
-
-      <div class="progress-section">
-        <p class="progress-title">Wash Progress</p>
-        <div class="stage-track" id="stageTrack"></div>
-      </div>
-
-      <div class="eta-strip" id="etaStrip" style="display:none">
-        <div class="eta-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 16 14"/>
-          </svg>
-        </div>
-        <div class="eta-body">
-          <div class="eta-label">Estimated Time</div>
-          <div class="eta-message" id="cEta">—</div>
-        </div>
-      </div>
-
-      <div class="notes-strip" id="notesStrip" style="display:none">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <p class="notes-text" id="cNote"></p>
-      </div>
-
+      <div class="progress-section"><p class="progress-title">Wash Progress</p><div class="stage-track" id="stageTrack"></div></div>
+      <div class="eta-strip" id="etaStrip" style="display:none"><div class="eta-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div><div><div class="eta-label">Estimated Time</div><div class="eta-message" id="cEta">—</div></div></div>
+      <div class="notes-strip" id="notesStrip" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg><p class="notes-text" id="cNote"></p></div>
       <div class="info-grid">
-        <div class="info-tile">
-          <div class="info-tile-label">Staff Member</div>
-          <div class="info-tile-value" id="cStaff">—</div>
-        </div>
-        <div class="info-tile">
-          <div class="info-tile-label">Time In</div>
-          <div class="info-tile-value" id="cTimeIn">—</div>
-        </div>
-        <div class="info-tile">
-          <div class="info-tile-label">Current Stage</div>
-          <div class="info-tile-value" id="cStageTile">—</div>
-        </div>
+        <div class="info-tile"><div class="info-tile-label">Staff Member</div><div class="info-tile-value" id="cStaff">—</div></div>
+        <div class="info-tile"><div class="info-tile-label">Time In</div><div class="info-tile-value" id="cTimeIn">—</div></div>
+        <div class="info-tile"><div class="info-tile-label">Current Stage</div><div class="info-tile-value" id="cStageTile">—</div></div>
       </div>
-
       <div class="card-footer-bar">
-        <div class="last-updated">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-          </svg>
-          <span id="cLastUpdated">Last updated just now</span>
-        </div>
-        <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
-          <svg id="refreshIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-          </svg>
-          Refresh
-        </button>
+        <div class="last-updated"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg><span id="cLastUpdated">Last updated just now</span></div>
+        <button class="refresh-btn" id="refreshBtn" onclick="refreshData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>Refresh</button>
       </div>
     </div>
-
   </div>
 </section>
-
 <section class="photo-strip">
   <div class="photo-strip-inner">
     <div class="photo-strip-text">
       <div class="photo-strip-eyebrow">Our Promise</div>
       <h2 class="photo-strip-headline">Premium care for <em>every vehicle</em></h2>
-      <p class="photo-strip-body">
-        At Sankivi Car Wash, every vehicle receives the attention it deserves — from a thorough wash to a meticulous interior finish, handled by our expert team.
-      </p>
+      <p class="photo-strip-body">At Sankivi Car Wash, every vehicle receives the attention it deserves — from a thorough wash to a meticulous interior finish, handled by our expert team.</p>
     </div>
     <div class="photo-mosaic">
-      <img class="ph-1" src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/refs/heads/main/Carwash1.jpg" alt="Car wash team at work"/>
-      <img class="ph-2" src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/refs/heads/main/carwash%20image2.avif" alt="Premium car wash finish"/>
+      <img class="ph-1" src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/main/Carwash1.jpg" alt="Car wash team at work" />
+      <img class="ph-2" src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/main/carwash%20image2.avif" alt="Premium car wash finish" onerror="this.style.display='none'" />
     </div>
   </div>
 </section>
-
-<footer class="page-footer">
-  <div class="footer-brand">Sankivi Car Wash</div>
-  <p class="footer-copy">© 2025 Sankivi Car Wash · All rights reserved</p>
-</footer>
-
+<footer class="page-footer"><div class="footer-brand">Sankivi Car Wash</div><p class="footer-copy">© 2025 Sankivi Car Wash · All rights reserved</p></footer>
 <script>
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQEse0Fis7zTaXkvBsL_N1s97NM7nxsP9RLMQqLslDs6VdAiDAuuTyIgEUC9-MWnY2ANwXZzy33PUuW/pub?output=csv';
-
-const STAGES = [
-  'Vehicle Received',
-  'Waiting Queue',
-  'Bay 1 - Washing',
-  'Bay 2 - Washing',
-  'Rinsing',
-  'Drying',
-  'Interior Cleaning',
-  'Polishing',
-  'Quality Check',
-  'Ready for Collection',
-  'Collected'
-];
-
-const READY_STAGES = ['Ready for Collection', 'Collected'];
-
-let cachedData = null;
-let lastSearch = { firstName: '', lastName: '', plate: '' };
-
-function normalizeKey(str) {
-  return String(str || '')
-    .replace(/^\uFEFF/, '')
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, ' ')
-    .replace(/[^a-z0-9 ]/g, '')
-    .trim();
-}
-
-function normalizeValue(str) {
-  return String(str || '').trim().toLowerCase().replace(/\s+/g, '');
-}
-
-function setLoading(show) {
-  document.getElementById('loadingOverlay').classList.toggle('visible', show);
-}
-
-function shakCard() {
-  const btn = document.getElementById('searchBtn');
-  btn.style.transform = 'translateX(-6px)';
-  setTimeout(() => btn.style.transform = 'translateX(6px)', 80);
-  setTimeout(() => btn.style.transform = 'translateX(-4px)', 160);
-  setTimeout(() => btn.style.transform = '', 240);
-}
-
-function parseCSV(text) {
-  const rows = [];
-  let row = [];
-  let cell = '';
-  let inQuotes = false;
-
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i];
-    const next = text[i + 1];
-
-    if (char === '"') {
-      if (inQuotes && next === '"') {
-        cell += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      row.push(cell);
-      cell = '';
-    } else if ((char === '\n' || char === '\r') && !inQuotes) {
-      if (char === '\r' && next === '\n') i++;
-      row.push(cell);
-      cell = '';
-      if (row.some(v => String(v).trim() !== '')) rows.push(row);
-      row = [];
-    } else {
-      cell += char;
-    }
+const STAGES = ['Vehicle Received','Waiting Queue','Bay 1 - Washing','Bay 2 - Washing','Rinsing','Drying','Interior Cleaning','Polishing','Quality Check','Ready for Collection','Collected'];
+const READY_STAGES = ['Ready for Collection','Collected'];
+let cachedData = null, cachedAt = 0, lastSearch = { firstName:'', lastName:'', plate:'' }, searchNonce = 0;
+const clean = v => String(v || '').replace(/^\uFEFF/, '').trim();
+const normKey = v => clean(v).toLowerCase().replace(/\s+/g,' ').replace(/[^a-z0-9 ]/g,'');
+const normVal = v => clean(v).toLowerCase().replace(/\s+/g,'');
+const g = (r, k) => {
+  const v = r[normKey(k)];
+  return v && String(v).trim() !== '' ? String(v).trim() : '—';
+};
+function setLoading(show){ document.getElementById('loadingOverlay').classList.toggle('visible', show); }
+function shakCard(){ const b=document.getElementById('searchBtn'); b.style.transform='translateX(-6px)'; setTimeout(()=>b.style.transform='translateX(6px)',80); setTimeout(()=>b.style.transform='translateX(-4px)',160); setTimeout(()=>b.style.transform='',240); }
+function parseCSV(text){
+  const rows=[]; let row=[], cell='', q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i], n=text[i+1];
+    if(c==='"'){ if(q&&n==='"'){cell+='"'; i++;} else q=!q; }
+    else if(c===','&&!q){ row.push(cell); cell=''; }
+    else if((c==='\n'||c==='\r')&&!q){ if(c==='\r'&&n==='\n') i++; row.push(cell); if(row.some(v=>String(v).trim())) rows.push(row); row=[]; cell=''; }
+    else cell+=c;
   }
-
-  row.push(cell);
-  if (row.some(v => String(v).trim() !== '')) rows.push(row);
-
-  return rows;
+  row.push(cell); if(row.some(v=>String(v).trim())) rows.push(row); return rows;
 }
-
-function findHeaderRow(rows) {
-  const required = [
-    'job id',
-    'time in',
-    'client first name',
-    'client surname',
-    'license plate',
-    'vehicle make',
-    'vehicle type',
-    'service type',
-    'current stage',
-    'bay',
-    'staff',
-    'status note',
-    'eta',
-    'last updated'
-  ].map(normalizeKey);
-
-  for (let i = 0; i < rows.length; i++) {
-    const normalized = rows[i].map(normalizeKey);
-    const score = required.filter(h => normalized.includes(h)).length;
-    if (score >= 8) return i;
-  }
-
+function findHeaderRow(rows){
+  const required=['job id','time in','client first name','client surname','license plate','vehicle make','vehicle type','service type','current stage','bay','staff','status note','eta','last updated'].map(normKey);
+  for(let i=0;i<rows.length;i++){ const n=rows[i].map(normKey); const score=required.filter(h=>n.includes(h)).length; if(score>=8) return i; }
   return -1;
 }
-
-function mapRowToObject(headers, row) {
-  const obj = {};
-  headers.forEach((h, i) => {
-    obj[h] = (row[i] ?? '').toString().trim();
-  });
-  return obj;
-}
-
-async function fetchData() {
-  if (cachedData) return cachedData;
-
-  const res = await fetch(CSV_URL + '&cache=' + Date.now(), { cache: 'no-store' });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-
-  const text = await res.text();
-  const rows = parseCSV(text);
-
+function mapRow(headers,row){ const o={}; headers.forEach((h,i)=>o[h]=(row[i] ?? '').toString().trim()); return o; }
+async function fetchData(forceFresh=false){
+  const freshEnough = cachedData && (Date.now()-cachedAt < 15000);
+  if(!forceFresh && freshEnough) return cachedData;
+  const url = CSV_URL + (CSV_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
+  const res = await fetch(url, { cache:'no-store' });
+  if(!res.ok) throw new Error('HTTP ' + res.status);
+  const rows = parseCSV(await res.text());
   const headerIndex = findHeaderRow(rows);
-  if (headerIndex === -1) {
-    console.error('Could not find header row.');
-    console.log(rows);
-    cachedData = [];
-    return cachedData;
-  }
-
-  const headers = rows[headerIndex].map(normalizeKey);
-  const dataRows = rows.slice(headerIndex + 1);
-
-  cachedData = dataRows.map(r => mapRowToObject(headers, r))
-    .filter(r => Object.values(r).some(v => String(v).trim() !== ''));
-
-  console.log('Loaded rows:', cachedData.length);
-  console.log('Headers:', headers);
-  console.log('First row:', cachedData[0]);
-
+  if(headerIndex === -1){ console.error('Header row not found', rows); cachedData=[]; cachedAt=Date.now(); return cachedData; }
+  const headers = rows[headerIndex].map(normKey);
+  cachedData = rows.slice(headerIndex+1).map(r => mapRow(headers, r)).filter(r => Object.values(r).some(v => String(v).trim() !== ''));
+  cachedAt = Date.now();
   return cachedData;
 }
-
-function g(record, key) {
-  const value = record[normalizeKey(key)];
-  return value && String(value).trim() !== '' ? String(value).trim() : '—';
-}
-
-function buildStageTrack(currentStage) {
-  const track = document.getElementById('stageTrack');
-  track.innerHTML = '';
-
-  const currentIdx = STAGES.indexOf(currentStage);
-
-  STAGES.forEach((s, i) => {
-    const isCompleted = i < currentIdx;
-    const isCurrent = i === currentIdx;
-    const isReady = READY_STAGES.includes(s);
-
-    const item = document.createElement('div');
-    item.className = 'stage-item';
-    if (isCompleted) item.classList.add('completed');
-    if (isCurrent) item.classList.add('current');
-    if (isReady) item.classList.add('ready-stage');
-
-    const dot = document.createElement('div');
-    dot.className = 'stage-dot';
-
-    if (isCompleted) {
-      dot.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
-    } else if (isCurrent) {
-      dot.innerHTML = `<svg viewBox="0 0 24 24" fill="${s === 'Ready for Collection' ? 'none' : 'currentColor'}" stroke="currentColor" stroke-width="${s === 'Ready for Collection' ? '2.5' : '0'}" stroke-linecap="round" stroke-linejoin="round">${s === 'Ready for Collection' ? '<polyline points="20 6 9 17 4 12"/>' : '<circle cx="12" cy="12" r="5"/>'}</svg>`;
-    }
-
-    const label = document.createElement('span');
-    label.className = 'stage-label';
-    label.textContent = s;
-
-    if (isCurrent && s !== 'Collected') {
-      const badge = document.createElement('span');
-      badge.className = 'stage-current-badge';
-      badge.textContent = 'Current';
-      label.appendChild(document.createTextNode(' '));
-      label.appendChild(badge);
-    }
-
-    item.appendChild(dot);
-    item.appendChild(label);
-    track.appendChild(item);
+function buildStageTrack(currentStage){
+  const track=document.getElementById('stageTrack'); track.innerHTML='';
+  const currentIdx = STAGES.findIndex(s => normVal(s) === normVal(currentStage));
+  const idx = currentIdx === -1 ? 0 : currentIdx;
+  STAGES.forEach((s,i)=>{
+    const item=document.createElement('div'); item.className='stage-item';
+    if(i<idx) item.classList.add('completed');
+    if(i===idx) item.classList.add('current');
+    if(READY_STAGES.includes(s)) item.classList.add('ready-stage');
+    const dot=document.createElement('div'); dot.className='stage-dot';
+    if(i<idx) dot.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+    else if(i===idx) dot.innerHTML = normVal(s) === normVal('Ready for Collection') ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>` : `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"></circle></svg>`;
+    const label=document.createElement('span'); label.className='stage-label'; label.textContent=s;
+    if(i===idx && normVal(s)!==normVal('Collected')){ const badge=document.createElement('span'); badge.className='stage-current-badge'; badge.textContent='Current'; label.appendChild(document.createTextNode(' ')); label.appendChild(badge); }
+    item.appendChild(dot); item.appendChild(label); track.appendChild(item);
   });
 }
-
-function showResult(record) {
-  const resultsSection = document.getElementById('resultsSection');
-  const emptyState = document.getElementById('emptyState');
-  const vehicleCard = document.getElementById('vehicleCard');
-
+function showResult(record){
+  const resultsSection=document.getElementById('resultsSection');
+  const emptyState=document.getElementById('emptyState');
+  const vehicleCard=document.getElementById('vehicleCard');
   resultsSection.classList.add('visible');
-
-  if (!record) {
-    emptyState.classList.add('visible');
-    vehicleCard.style.display = 'none';
-    return;
-  }
-
-  emptyState.classList.remove('visible');
-  vehicleCard.style.display = 'block';
-
-  const firstName = g(record, 'Client First Name');
-  const surname = g(record, 'Client Surname');
-  const stage = g(record, 'Current Stage');
-  const isReady = READY_STAGES.includes(stage);
-  const isCollected = normalizeValue(stage) === normalizeValue('Collected');
-
-  document.getElementById('cName').textContent = [firstName, surname].filter(v => v !== '—').join(' ') || '—';
-  document.getElementById('cPlate').textContent = g(record, 'License Plate');
-  document.getElementById('cMake').textContent = g(record, 'Vehicle Make');
-  document.getElementById('cType').textContent = g(record, 'Vehicle Type');
-  document.getElementById('cService').textContent = g(record, 'Service Type');
-  document.getElementById('cBay').textContent = g(record, 'Bay');
-  document.getElementById('cJobId').textContent = g(record, 'Job ID');
-  document.getElementById('cStaff').textContent = g(record, 'Staff');
-  document.getElementById('cTimeIn').textContent = g(record, 'Time In');
-  document.getElementById('cStageTile').textContent = stage;
-  document.getElementById('cLastUpdated').textContent = 'Last updated ' + g(record, 'Last Updated');
-
-  const pill = document.getElementById('cStatusPill');
-  pill.className = 'status-pill';
-  if (isCollected) {
-    pill.classList.add('done');
-    pill.textContent = 'Collected';
-  } else if (isReady) {
-    pill.classList.add('ready');
-    pill.textContent = 'Ready ✓';
-  } else {
-    pill.classList.add('active');
-    pill.textContent = 'In Progress';
-  }
-
-  const eta = g(record, 'ETA');
-  if (eta !== '—') {
-    document.getElementById('cEta').textContent = eta;
-    document.getElementById('etaStrip').style.display = 'flex';
-  } else {
-    document.getElementById('etaStrip').style.display = 'none';
-  }
-
-  const note = g(record, 'Status Note');
-  if (note !== '—') {
-    document.getElementById('cNote').textContent = note;
-    document.getElementById('notesStrip').style.display = 'flex';
-  } else {
-    document.getElementById('notesStrip').style.display = 'none';
-  }
-
+  if(!record){ emptyState.classList.add('visible'); vehicleCard.style.display='none'; return; }
+  emptyState.classList.remove('visible'); vehicleCard.style.display='block';
+  const firstName=g(record,'Client First Name');
+  const surname=g(record,'Client Surname');
+  const stage=g(record,'Current Stage');
+  const isReady=READY_STAGES.includes(stage);
+  const isCollected=normVal(stage)===normVal('Collected');
+  document.getElementById('cName').textContent=[firstName,surname].filter(v=>v!=='—').join(' ') || '—';
+  document.getElementById('cPlate').textContent=g(record,'License Plate');
+  document.getElementById('cMake').textContent=g(record,'Vehicle Make');
+  document.getElementById('cType').textContent=g(record,'Vehicle Type');
+  document.getElementById('cService').textContent=g(record,'Service Type');
+  document.getElementById('cBay').textContent=g(record,'Bay');
+  document.getElementById('cJobId').textContent=g(record,'Job ID');
+  document.getElementById('cStaff').textContent=g(record,'Staff');
+  document.getElementById('cTimeIn').textContent=g(record,'Time In');
+  document.getElementById('cStageTile').textContent=stage;
+  document.getElementById('cLastUpdated').textContent='Last updated ' + g(record,'Last Updated');
+  const pill=document.getElementById('cStatusPill');
+  pill.className='status-pill';
+  if(isCollected){ pill.classList.add('done'); pill.textContent='Collected'; }
+  else if(isReady){ pill.classList.add('ready'); pill.textContent='Ready ✓'; }
+  else { pill.classList.add('active'); pill.textContent='In Progress'; }
+  const eta=g(record,'ETA');
+  document.getElementById('etaStrip').style.display = eta !== '—' ? 'flex' : 'none';
+  document.getElementById('cEta').textContent = eta;
+  const note=g(record,'Status Note');
+  document.getElementById('notesStrip').style.display = note !== '—' ? 'flex' : 'none';
+  document.getElementById('cNote').textContent = note;
   buildStageTrack(stage);
 }
-
-async function doSearch() {
-  const firstName = document.getElementById('firstName').value.trim();
-  const lastName = document.getElementById('lastName').value.trim();
-  const plate = document.getElementById('plate').value.trim();
-
-  if (!firstName && !lastName && !plate) {
-    shakCard();
-    return;
-  }
-
-  lastSearch = { firstName, lastName, plate };
+async function doSearch(forceFresh=false){
+  const nonce=++searchNonce;
+  const firstName=document.getElementById('firstName').value.trim();
+  const lastName=document.getElementById('lastName').value.trim();
+  const plate=document.getElementById('plate').value.trim();
+  if(!firstName && !lastName && !plate){ shakCard(); return; }
+  lastSearch={firstName,lastName,plate};
   setLoading(true);
-
-  try {
-    const data = await fetchData();
-    const fn = normalizeValue(firstName);
-    const ln = normalizeValue(lastName);
-    const p = normalizeValue(plate).replace(/\s+/g, '');
-
-    let match = null;
-
-    if (p) {
-      match = data.find(r => normalizeValue(g(r, 'License Plate')).replace(/\s+/g, '') === p);
-    }
-
-    if (!match && (fn || ln)) {
-      match = data.find(r => {
-        const rFn = normalizeValue(g(r, 'Client First Name'));
-        const rLn = normalizeValue(g(r, 'Client Surname'));
-        const fnOk = fn ? rFn.includes(fn) : true;
-        const lnOk = ln ? rLn.includes(ln) : true;
-        return fnOk && lnOk;
-      });
-    }
-
-    if (!match && fn && !ln) {
-      match = data.find(r => normalizeValue(g(r, 'Client First Name')).includes(fn));
-    }
-
-    if (!match && ln && !fn) {
-      match = data.find(r => normalizeValue(g(r, 'Client Surname')).includes(ln));
-    }
-
-    setLoading(false);
+  try{
+    const data = await fetchData(forceFresh);
+    if(nonce !== searchNonce) return;
+    const fn=normVal(firstName), ln=normVal(lastName), p=normVal(plate).replace(/\s+/g,'');
+    let match=null;
+    if(p) match=data.find(r => normVal(g(r,'License Plate')).replace(/\s+/g,'') === p);
+    if(!match && (fn || ln)) match=data.find(r => {
+      const rFn=normVal(g(r,'Client First Name')); const rLn=normVal(g(r,'Client Surname'));
+      return (fn ? rFn.includes(fn) : true) && (ln ? rLn.includes(ln) : true);
+    });
+    if(!match && fn && !ln) match=data.find(r => normVal(g(r,'Client First Name')).includes(fn));
+    if(!match && ln && !fn) match=data.find(r => normVal(g(r,'Client Surname')).includes(ln));
     showResult(match);
-
-    setTimeout(() => {
-      document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
-
-  } catch (err) {
+    setTimeout(()=>document.getElementById('resultsSection').scrollIntoView({behavior:'smooth',block:'start'}),100);
+  } catch(err){
     console.error(err);
-    setLoading(false);
+    if(nonce !== searchNonce) return;
     showResult(null);
+  } finally{
+    if(nonce === searchNonce) setLoading(false);
   }
 }
-
-async function refreshData() {
-  const btn = document.getElementById('refreshBtn');
+async function refreshData(){
+  const btn=document.getElementById('refreshBtn');
   btn.classList.add('loading');
-  cachedData = null;
-
-  try {
-    if (lastSearch.firstName || lastSearch.lastName || lastSearch.plate) {
-      await doSearch();
-    } else {
-      await fetchData();
-    }
-  } finally {
-    btn.classList.remove('loading');
-  }
+  cachedData=null; cachedAt=0;
+  try{
+    if(lastSearch.firstName || lastSearch.lastName || lastSearch.plate) await doSearch(true);
+    else await fetchData(true);
+  } finally { btn.classList.remove('loading'); }
 }
-
-['firstName','lastName','plate'].forEach(id => {
-  document.getElementById(id).addEventListener('keydown', e => {
-    if (e.key === 'Enter') doSearch();
-  });
-});
-
-document.getElementById('plate').addEventListener('input', function() {
-  const pos = this.selectionStart;
-  this.value = this.value.toUpperCase();
-  this.setSelectionRange(pos, pos);
-});
+function handleLogoError(img){ img.style.display='none'; const fallback=document.getElementById('logoFallback'); if(fallback) fallback.style.display='flex'; }
+['firstName','lastName','plate'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{ if(e.key==='Enter') doSearch(); }));
+document.getElementById('plate').addEventListener('input', function(){ const p=this.selectionStart; this.value=this.value.toUpperCase(); this.setSelectionRange(p,p); });
+document.addEventListener('visibilitychange', () => { if(!document.hidden){ cachedData=null; cachedAt=0; if(lastSearch.firstName || lastSearch.lastName || lastSearch.plate) doSearch(true); } });
+setInterval(() => { if(lastSearch.firstName || lastSearch.lastName || lastSearch.plate){ cachedData=null; cachedAt=0; doSearch(true); } }, 30000);
+window.addEventListener('load', () => { const logo=document.getElementById('navLogo'); if(logo && logo.complete && logo.naturalWidth===0) handleLogoError(logo); });
 </script>
 </body>
 </html>
