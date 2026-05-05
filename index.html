@@ -172,12 +172,14 @@
   <div class="loading-spinner"></div>
   <p class="loading-text">Locating your vehicle…</p>
 </div>
+
 <section class="hero">
   <div class="hero-bg">
     <img class="hero-bg-img" src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/main/Carwash1.jpg" alt="Sankivi Car Wash" onerror="this.style.display='none'" />
     <div class="hero-overlay"></div>
     <div class="hero-grain"></div>
   </div>
+
   <nav>
     <div class="nav-logo">
       <img id="navLogo" class="nav-logo-img" src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/main/Sankivi-Logo.png" alt="Sankivi Car Wash" onload="this.style.opacity='1'" onerror="handleLogoError(this)" />
@@ -188,30 +190,62 @@
     </div>
     <div class="nav-badge"><div class="dot"></div><span>Live Tracking</span></div>
   </nav>
+
   <div class="hero-content">
     <div class="hero-eyebrow"><span>✦ Real-Time Vehicle Tracker</span></div>
     <h1 class="hero-headline">Where is<br /><em>your vehicle?</em></h1>
     <p class="hero-sub">Enter your details below to see exactly where your car is in our wash process — beautifully updated in real time.</p>
+
     <div class="search-card">
       <p class="search-card-title">Find Your Vehicle</p>
+
       <div class="input-group">
-        <div class="input-wrap"><label for="firstName">First Name</label><input id="firstName" type="text" placeholder="e.g. Johan" autocomplete="given-name" /></div>
-        <div class="input-wrap"><label for="lastName">Surname</label><input id="lastName" type="text" placeholder="e.g. De Beer" autocomplete="family-name" /></div>
+        <div class="input-wrap">
+          <label for="firstName">First Name</label>
+          <input id="firstName" type="text" placeholder="e.g. Johan" autocomplete="given-name" />
+        </div>
+        <div class="input-wrap">
+          <label for="lastName">Surname</label>
+          <input id="lastName" type="text" placeholder="e.g. De Beer" autocomplete="family-name" />
+        </div>
       </div>
+
       <div class="search-divider"><span>or search by plate</span></div>
-      <div class="input-group input-solo"><div class="input-wrap"><label for="plate">License Plate</label><input id="plate" type="text" placeholder="e.g. ABC 123 GP" autocomplete="off" /></div></div>
-      <button class="search-btn" id="searchBtn" onclick="doSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>Track My Vehicle</button>
+
+      <div class="input-group input-solo">
+        <div class="input-wrap">
+          <label for="plate">License Plate</label>
+          <input id="plate" type="text" placeholder="e.g. ABC 123 GP" autocomplete="off" />
+        </div>
+      </div>
+
+      <button class="search-btn" id="searchBtn" onclick="doSearch()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path>
+        </svg>
+        Track My Vehicle
+      </button>
     </div>
   </div>
-  <div class="scroll-hint"><span>Results appear below</span><div class="scroll-arrow"></div></div>
+
+  <div class="scroll-hint">
+    <span>Results appear below</span>
+    <div class="scroll-arrow"></div>
+  </div>
 </section>
+
 <section class="results-section" id="resultsSection">
   <div class="results-inner">
     <div class="empty-state" id="emptyState">
-      <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg></div>
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path>
+        </svg>
+      </div>
       <h3 class="empty-title">No Vehicle Found</h3>
       <p class="empty-sub">We couldn't find a vehicle matching your details. Please double-check your name or license plate and try again.</p>
     </div>
+
     <div class="vehicle-card" id="vehicleCard">
       <div class="card-header">
         <div class="card-header-top">
@@ -229,27 +263,74 @@
           <div class="meta-item"><span class="meta-label">Job ID</span><span class="meta-value" id="cJobId">—</span></div>
         </div>
       </div>
-      <div class="progress-section"><p class="progress-title">Wash Progress</p><div class="stage-track" id="stageTrack"></div></div>
-      <div class="eta-strip" id="etaStrip" style="display:none"><div class="eta-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div><div><div class="eta-label">Estimated Time</div><div class="eta-message" id="cEta">—</div></div></div>
-      <div class="notes-strip" id="notesStrip" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg><p class="notes-text" id="cNote"></p></div>
-      <div class="info-grid">
-        <div class="info-tile"><div class="info-tile-label">Staff Member</div><div class="info-tile-value" id="cStaff">—</div></div>
-        <div class="info-tile"><div class="info-tile-label">Time In</div><div class="info-tile-value" id="cTimeIn">—</div></div>
-        <div class="info-tile"><div class="info-tile-label">Current Stage</div><div class="info-tile-value" id="cStageTile">—</div></div>
+
+      <div class="progress-section">
+        <p class="progress-title">Wash Progress</p>
+        <div class="stage-track" id="stageTrack"></div>
       </div>
+
+      <div class="eta-strip" id="etaStrip" style="display:none">
+        <div class="eta-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"></circle><polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div>
+          <div class="eta-label">Estimated Time</div>
+          <div class="eta-message" id="cEta">—</div>
+        </div>
+      </div>
+
+      <div class="notes-strip" id="notesStrip" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <p class="notes-text" id="cNote"></p>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-tile">
+          <div class="info-tile-label">Staff Member</div>
+          <div class="info-tile-value" id="cStaff">—</div>
+        </div>
+        <div class="info-tile">
+          <div class="info-tile-label">Time In</div>
+          <div class="info-tile-value" id="cTimeIn">—</div>
+        </div>
+        <div class="info-tile">
+          <div class="info-tile-label">Current Stage</div>
+          <div class="info-tile-value" id="cStageTile">—</div>
+        </div>
+      </div>
+
       <div class="card-footer-bar">
-        <div class="last-updated"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg><span id="cLastUpdated">Last updated just now</span></div>
-        <button class="refresh-btn" id="refreshBtn" onclick="refreshData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>Refresh</button>
+        <div class="last-updated">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span id="cLastUpdated">Last updated just now</span>
+        </div>
+        <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
+          <svg id="refreshIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          Refresh
+        </button>
       </div>
     </div>
   </div>
 </section>
+
 <section class="photo-strip">
   <div class="photo-strip-inner">
     <div class="photo-strip-text">
       <div class="photo-strip-eyebrow">Our Promise</div>
       <h2 class="photo-strip-headline">Premium care for <em>every vehicle</em></h2>
-      <p class="photo-strip-body">At Sankivi Car Wash, every vehicle receives the attention it deserves — from a thorough wash to a meticulous interior finish, handled by our expert team.</p>
+      <p class="photo-strip-body">
+        At Sankivi Car Wash, every vehicle receives the attention it deserves — from a thorough wash to a meticulous interior finish, handled by our expert team.
+      </p>
     </div>
     <div class="photo-mosaic">
       <img class="ph-1" src="https://raw.githubusercontent.com/johandebeer21/sankivi-washtrack/main/Carwash1.jpg" alt="Car wash team at work" />
@@ -257,150 +338,372 @@
     </div>
   </div>
 </section>
-<footer class="page-footer"><div class="footer-brand">Sankivi Car Wash</div><p class="footer-copy">© 2025 Sankivi Car Wash · All rights reserved</p></footer>
+
+<footer class="page-footer">
+  <div class="footer-brand">Sankivi Car Wash</div>
+  <p class="footer-copy">© 2025 Sankivi Car Wash · All rights reserved</p>
+</footer>
+
 <script>
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQEse0Fis7zTaXkvBsL_N1s97NM7nxsP9RLMQqLslDs6VdAiDAuuTyIgEUC9-MWnY2ANwXZzy33PUuW/pub?output=csv';
-const STAGES = ['Vehicle Received','Waiting Queue','Bay 1 - Washing','Bay 2 - Washing','Rinsing','Drying','Interior Cleaning','Polishing','Quality Check','Ready for Collection','Collected'];
-const READY_STAGES = ['Ready for Collection','Collected'];
-let cachedData = null, cachedAt = 0, lastSearch = { firstName:'', lastName:'', plate:'' }, searchNonce = 0;
+
+const STAGES = [
+  'Vehicle Received',
+  'Waiting Queue',
+  'Bay 1 - Washing',
+  'Bay 2 - Washing',
+  'Bay 3 - Washing',
+  'Rinsing',
+  'Drying',
+  'Interior Cleaning',
+  'Polishing',
+  'Quality Check',
+  'Ready for Collection',
+  'Collected'
+];
+
+const READY_STAGES = ['Ready for Collection', 'Collected'];
+
+let cachedData = null;
+let cachedAt = 0;
+let lastSearch = { firstName: '', lastName: '', plate: '' };
+let searchNonce = 0;
+
 const clean = v => String(v || '').replace(/^\uFEFF/, '').trim();
 const normKey = v => clean(v).toLowerCase().replace(/\s+/g,' ').replace(/[^a-z0-9 ]/g,'');
 const normVal = v => clean(v).toLowerCase().replace(/\s+/g,'');
+
 const g = (r, k) => {
   const v = r[normKey(k)];
   return v && String(v).trim() !== '' ? String(v).trim() : '—';
 };
-function setLoading(show){ document.getElementById('loadingOverlay').classList.toggle('visible', show); }
-function shakCard(){ const b=document.getElementById('searchBtn'); b.style.transform='translateX(-6px)'; setTimeout(()=>b.style.transform='translateX(6px)',80); setTimeout(()=>b.style.transform='translateX(-4px)',160); setTimeout(()=>b.style.transform='',240); }
-function parseCSV(text){
-  const rows=[]; let row=[], cell='', q=false;
-  for(let i=0;i<text.length;i++){
-    const c=text[i], n=text[i+1];
-    if(c==='"'){ if(q&&n==='"'){cell+='"'; i++;} else q=!q; }
-    else if(c===','&&!q){ row.push(cell); cell=''; }
-    else if((c==='\n'||c==='\r')&&!q){ if(c==='\r'&&n==='\n') i++; row.push(cell); if(row.some(v=>String(v).trim())) rows.push(row); row=[]; cell=''; }
-    else cell+=c;
-  }
-  row.push(cell); if(row.some(v=>String(v).trim())) rows.push(row); return rows;
+
+function canonicalStage(raw) {
+  const s = normVal(raw)
+    .replace(/&/g, 'and')
+    .replace(/[\/\-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!s) return 'Vehicle Received';
+
+  if (/(bay 1|wash 1)/.test(s)) return 'Bay 1 - Washing';
+  if (/(bay 2|wash 2)/.test(s)) return 'Bay 2 - Washing';
+  if (/(bay 3|wash 3)/.test(s)) return 'Bay 3 - Washing';
+
+  if (/(vehicle received|received)/.test(s)) return 'Vehicle Received';
+  if (/(waiting queue|queue|waiting)/.test(s)) return 'Waiting Queue';
+  if (/(rinse|rinsing)/.test(s)) return 'Rinsing';
+  if (/(dry|drying)/.test(s)) return 'Drying';
+  if (/(interior)/.test(s)) return 'Interior Cleaning';
+  if (/(polish|finish)/.test(s)) return 'Polishing';
+  if (/(quality check|qc|quality control)/.test(s)) return 'Quality Check';
+  if (/(ready|collection)/.test(s)) return 'Ready for Collection';
+  if (/(collected|done|complete)/.test(s)) return 'Collected';
+
+  return 'Vehicle Received';
 }
+
+function setLoading(show){
+  document.getElementById('loadingOverlay').classList.toggle('visible', show);
+}
+
+function shakCard(){
+  const b = document.getElementById('searchBtn');
+  b.style.transform = 'translateX(-6px)';
+  setTimeout(() => b.style.transform = 'translateX(6px)', 80);
+  setTimeout(() => b.style.transform = 'translateX(-4px)', 160);
+  setTimeout(() => b.style.transform = '', 240);
+}
+
+function parseCSV(text){
+  const rows = [];
+  let row = [];
+  let cell = '';
+  let q = false;
+
+  for (let i = 0; i < text.length; i++){
+    const c = text[i], n = text[i+1];
+
+    if (c === '"'){
+      if (q && n === '"'){ cell += '"'; i++; }
+      else q = !q;
+    } else if (c === ',' && !q){
+      row.push(cell);
+      cell = '';
+    } else if ((c === '\n' || c === '\r') && !q){
+      if (c === '\r' && n === '\n') i++;
+      row.push(cell);
+      if (row.some(v => String(v).trim())) rows.push(row);
+      row = [];
+      cell = '';
+    } else {
+      cell += c;
+    }
+  }
+
+  row.push(cell);
+  if (row.some(v => String(v).trim())) rows.push(row);
+  return rows;
+}
+
 function findHeaderRow(rows){
-  const required=['job id','time in','client first name','client surname','license plate','vehicle make','vehicle type','service type','current stage','bay','staff','status note','eta','last updated'].map(normKey);
-  for(let i=0;i<rows.length;i++){ const n=rows[i].map(normKey); const score=required.filter(h=>n.includes(h)).length; if(score>=8) return i; }
+  const required = [
+    'job id','time in','client first name','client surname','license plate',
+    'vehicle make','vehicle type','service type','current stage','bay','staff',
+    'status note','eta','last updated'
+  ].map(normKey);
+
+  for (let i = 0; i < rows.length; i++){
+    const n = rows[i].map(normKey);
+    const score = required.filter(h => n.includes(h)).length;
+    if (score >= 8) return i;
+  }
   return -1;
 }
-function mapRow(headers,row){ const o={}; headers.forEach((h,i)=>o[h]=(row[i] ?? '').toString().trim()); return o; }
-async function fetchData(forceFresh=false){
-  const freshEnough = cachedData && (Date.now()-cachedAt < 15000);
-  if(!forceFresh && freshEnough) return cachedData;
+
+function mapRow(headers, row){
+  const o = {};
+  headers.forEach((h, i) => o[h] = (row[i] ?? '').toString().trim());
+  return o;
+}
+
+async function fetchData(forceFresh = false){
+  const freshEnough = cachedData && (Date.now() - cachedAt < 15000);
+  if (!forceFresh && freshEnough) return cachedData;
+
   const url = CSV_URL + (CSV_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
   const res = await fetch(url, { cache:'no-store' });
-  if(!res.ok) throw new Error('HTTP ' + res.status);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+
   const rows = parseCSV(await res.text());
   const headerIndex = findHeaderRow(rows);
-  if(headerIndex === -1){ console.error('Header row not found', rows); cachedData=[]; cachedAt=Date.now(); return cachedData; }
+
+  if (headerIndex === -1){
+    console.error('Header row not found', rows);
+    cachedData = [];
+    cachedAt = Date.now();
+    return cachedData;
+  }
+
   const headers = rows[headerIndex].map(normKey);
-  cachedData = rows.slice(headerIndex+1).map(r => mapRow(headers, r)).filter(r => Object.values(r).some(v => String(v).trim() !== ''));
+  cachedData = rows
+    .slice(headerIndex + 1)
+    .map(r => mapRow(headers, r))
+    .filter(r => Object.values(r).some(v => String(v).trim() !== ''));
+
   cachedAt = Date.now();
   return cachedData;
 }
+
 function buildStageTrack(currentStage){
-  const track=document.getElementById('stageTrack'); track.innerHTML='';
-  const currentIdx = STAGES.findIndex(s => normVal(s) === normVal(currentStage));
+  const track = document.getElementById('stageTrack');
+  track.innerHTML = '';
+
+  const canonical = canonicalStage(currentStage);
+  const currentIdx = STAGES.findIndex(s => normVal(s) === normVal(canonical));
   const idx = currentIdx === -1 ? 0 : currentIdx;
-  STAGES.forEach((s,i)=>{
-    const item=document.createElement('div'); item.className='stage-item';
-    if(i<idx) item.classList.add('completed');
-    if(i===idx) item.classList.add('current');
-    if(READY_STAGES.includes(s)) item.classList.add('ready-stage');
-    const dot=document.createElement('div'); dot.className='stage-dot';
-    if(i<idx) dot.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-    else if(i===idx) dot.innerHTML = normVal(s) === normVal('Ready for Collection') ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>` : `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"></circle></svg>`;
-    const label=document.createElement('span'); label.className='stage-label'; label.textContent=s;
-    if(i===idx && normVal(s)!==normVal('Collected')){ const badge=document.createElement('span'); badge.className='stage-current-badge'; badge.textContent='Current'; label.appendChild(document.createTextNode(' ')); label.appendChild(badge); }
-    item.appendChild(dot); item.appendChild(label); track.appendChild(item);
+
+  STAGES.forEach((s, i) => {
+    const item = document.createElement('div');
+    item.className = 'stage-item';
+    if (i < idx) item.classList.add('completed');
+    if (i === idx) item.classList.add('current');
+    if (READY_STAGES.includes(s)) item.classList.add('ready-stage');
+
+    const dot = document.createElement('div');
+    dot.className = 'stage-dot';
+
+    if (i < idx) {
+      dot.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+    } else if (i === idx) {
+      dot.innerHTML = normVal(s) === normVal('Ready for Collection')
+        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`
+        : `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"></circle></svg>`;
+    }
+
+    const label = document.createElement('span');
+    label.className = 'stage-label';
+    label.textContent = s;
+
+    if (i === idx && normVal(s) !== normVal('Collected')) {
+      const badge = document.createElement('span');
+      badge.className = 'stage-current-badge';
+      badge.textContent = 'Current';
+      label.appendChild(document.createTextNode(' '));
+      label.appendChild(badge);
+    }
+
+    item.appendChild(dot);
+    item.appendChild(label);
+    track.appendChild(item);
   });
 }
+
 function showResult(record){
-  const resultsSection=document.getElementById('resultsSection');
-  const emptyState=document.getElementById('emptyState');
-  const vehicleCard=document.getElementById('vehicleCard');
+  const resultsSection = document.getElementById('resultsSection');
+  const emptyState = document.getElementById('emptyState');
+  const vehicleCard = document.getElementById('vehicleCard');
+
   resultsSection.classList.add('visible');
-  if(!record){ emptyState.classList.add('visible'); vehicleCard.style.display='none'; return; }
-  emptyState.classList.remove('visible'); vehicleCard.style.display='block';
-  const firstName=g(record,'Client First Name');
-  const surname=g(record,'Client Surname');
-  const stage=g(record,'Current Stage');
-  const isReady=READY_STAGES.includes(stage);
-  const isCollected=normVal(stage)===normVal('Collected');
-  document.getElementById('cName').textContent=[firstName,surname].filter(v=>v!=='—').join(' ') || '—';
-  document.getElementById('cPlate').textContent=g(record,'License Plate');
-  document.getElementById('cMake').textContent=g(record,'Vehicle Make');
-  document.getElementById('cType').textContent=g(record,'Vehicle Type');
-  document.getElementById('cService').textContent=g(record,'Service Type');
-  document.getElementById('cBay').textContent=g(record,'Bay');
-  document.getElementById('cJobId').textContent=g(record,'Job ID');
-  document.getElementById('cStaff').textContent=g(record,'Staff');
-  document.getElementById('cTimeIn').textContent=g(record,'Time In');
-  document.getElementById('cStageTile').textContent=stage;
-  document.getElementById('cLastUpdated').textContent='Last updated ' + g(record,'Last Updated');
-  const pill=document.getElementById('cStatusPill');
-  pill.className='status-pill';
-  if(isCollected){ pill.classList.add('done'); pill.textContent='Collected'; }
-  else if(isReady){ pill.classList.add('ready'); pill.textContent='Ready ✓'; }
-  else { pill.classList.add('active'); pill.textContent='In Progress'; }
-  const eta=g(record,'ETA');
+
+  if (!record){
+    emptyState.classList.add('visible');
+    vehicleCard.style.display = 'none';
+    return;
+  }
+
+  emptyState.classList.remove('visible');
+  vehicleCard.style.display = 'block';
+
+  const firstName = g(record, 'Client First Name');
+  const surname = g(record, 'Client Surname');
+  const stage = canonicalStage(g(record, 'Current Stage'));
+  const isReady = READY_STAGES.includes(stage);
+  const isCollected = normVal(stage) === normVal('Collected');
+
+  document.getElementById('cName').textContent = [firstName, surname].filter(v => v !== '—').join(' ') || '—';
+  document.getElementById('cPlate').textContent = g(record, 'License Plate');
+  document.getElementById('cMake').textContent = g(record, 'Vehicle Make');
+  document.getElementById('cType').textContent = g(record, 'Vehicle Type');
+  document.getElementById('cService').textContent = g(record, 'Service Type');
+  document.getElementById('cBay').textContent = g(record, 'Bay');
+  document.getElementById('cJobId').textContent = g(record, 'Job ID');
+  document.getElementById('cStaff').textContent = g(record, 'Staff');
+  document.getElementById('cTimeIn').textContent = g(record, 'Time In');
+  document.getElementById('cStageTile').textContent = stage;
+  document.getElementById('cLastUpdated').textContent = 'Last updated ' + g(record, 'Last Updated');
+
+  const pill = document.getElementById('cStatusPill');
+  pill.className = 'status-pill';
+
+  if (isCollected){
+    pill.classList.add('done');
+    pill.textContent = 'Collected';
+  } else if (isReady){
+    pill.classList.add('ready');
+    pill.textContent = 'Ready ✓';
+  } else {
+    pill.classList.add('active');
+    pill.textContent = 'In Progress';
+  }
+
+  const eta = g(record, 'ETA');
   document.getElementById('etaStrip').style.display = eta !== '—' ? 'flex' : 'none';
   document.getElementById('cEta').textContent = eta;
-  const note=g(record,'Status Note');
+
+  const note = g(record, 'Status Note');
   document.getElementById('notesStrip').style.display = note !== '—' ? 'flex' : 'none';
   document.getElementById('cNote').textContent = note;
+
   buildStageTrack(stage);
 }
-async function doSearch(forceFresh=false){
-  const nonce=++searchNonce;
-  const firstName=document.getElementById('firstName').value.trim();
-  const lastName=document.getElementById('lastName').value.trim();
-  const plate=document.getElementById('plate').value.trim();
-  if(!firstName && !lastName && !plate){ shakCard(); return; }
-  lastSearch={firstName,lastName,plate};
+
+async function doSearch(forceFresh = false){
+  const nonce = ++searchNonce;
+  const firstName = document.getElementById('firstName').value.trim();
+  const lastName = document.getElementById('lastName').value.trim();
+  const plate = document.getElementById('plate').value.trim();
+
+  if (!firstName && !lastName && !plate){
+    shakCard();
+    return;
+  }
+
+  lastSearch = { firstName, lastName, plate };
   setLoading(true);
+
   try{
     const data = await fetchData(forceFresh);
-    if(nonce !== searchNonce) return;
-    const fn=normVal(firstName), ln=normVal(lastName), p=normVal(plate).replace(/\s+/g,'');
-    let match=null;
-    if(p) match=data.find(r => normVal(g(r,'License Plate')).replace(/\s+/g,'') === p);
-    if(!match && (fn || ln)) match=data.find(r => {
-      const rFn=normVal(g(r,'Client First Name')); const rLn=normVal(g(r,'Client Surname'));
-      return (fn ? rFn.includes(fn) : true) && (ln ? rLn.includes(ln) : true);
-    });
-    if(!match && fn && !ln) match=data.find(r => normVal(g(r,'Client First Name')).includes(fn));
-    if(!match && ln && !fn) match=data.find(r => normVal(g(r,'Client Surname')).includes(ln));
+    if (nonce !== searchNonce) return;
+
+    const fn = normVal(firstName);
+    const ln = normVal(lastName);
+    const p = normVal(plate).replace(/\s+/g,'');
+
+    let match = null;
+
+    if (p) {
+      match = data.find(r => normVal(g(r,'License Plate')).replace(/\s+/g,'') === p);
+    }
+
+    if (!match && (fn || ln)) {
+      match = data.find(r => {
+        const rFn = normVal(g(r,'Client First Name'));
+        const rLn = normVal(g(r,'Client Surname'));
+        return (fn ? rFn.includes(fn) : true) && (ln ? rLn.includes(ln) : true);
+      });
+    }
+
+    if (!match && fn && !ln) match = data.find(r => normVal(g(r,'Client First Name')).includes(fn));
+    if (!match && ln && !fn) match = data.find(r => normVal(g(r,'Client Surname')).includes(ln));
+
     showResult(match);
-    setTimeout(()=>document.getElementById('resultsSection').scrollIntoView({behavior:'smooth',block:'start'}),100);
+    setTimeout(() => document.getElementById('resultsSection').scrollIntoView({ behavior:'smooth', block:'start' }), 100);
   } catch(err){
     console.error(err);
-    if(nonce !== searchNonce) return;
+    if (nonce !== searchNonce) return;
     showResult(null);
-  } finally{
-    if(nonce === searchNonce) setLoading(false);
+  } finally {
+    if (nonce === searchNonce) setLoading(false);
   }
 }
+
 async function refreshData(){
-  const btn=document.getElementById('refreshBtn');
+  const btn = document.getElementById('refreshBtn');
   btn.classList.add('loading');
-  cachedData=null; cachedAt=0;
+  cachedData = null;
+  cachedAt = 0;
+
   try{
-    if(lastSearch.firstName || lastSearch.lastName || lastSearch.plate) await doSearch(true);
-    else await fetchData(true);
-  } finally { btn.classList.remove('loading'); }
+    if (lastSearch.firstName || lastSearch.lastName || lastSearch.plate) {
+      await doSearch(true);
+    } else {
+      await fetchData(true);
+    }
+  } finally {
+    btn.classList.remove('loading');
+  }
 }
-function handleLogoError(img){ img.style.display='none'; const fallback=document.getElementById('logoFallback'); if(fallback) fallback.style.display='flex'; }
-['firstName','lastName','plate'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{ if(e.key==='Enter') doSearch(); }));
-document.getElementById('plate').addEventListener('input', function(){ const p=this.selectionStart; this.value=this.value.toUpperCase(); this.setSelectionRange(p,p); });
-document.addEventListener('visibilitychange', () => { if(!document.hidden){ cachedData=null; cachedAt=0; if(lastSearch.firstName || lastSearch.lastName || lastSearch.plate) doSearch(true); } });
-setInterval(() => { if(lastSearch.firstName || lastSearch.lastName || lastSearch.plate){ cachedData=null; cachedAt=0; doSearch(true); } }, 30000);
-window.addEventListener('load', () => { const logo=document.getElementById('navLogo'); if(logo && logo.complete && logo.naturalWidth===0) handleLogoError(logo); });
+
+function handleLogoError(img){
+  img.style.display = 'none';
+  const fallback = document.getElementById('logoFallback');
+  if (fallback) fallback.style.display = 'flex';
+}
+
+['firstName','lastName','plate'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSearch();
+  });
+});
+
+document.getElementById('plate').addEventListener('input', function(){
+  const p = this.selectionStart;
+  this.value = this.value.toUpperCase();
+  this.setSelectionRange(p, p);
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    cachedData = null;
+    cachedAt = 0;
+    if (lastSearch.firstName || lastSearch.lastName || lastSearch.plate) doSearch(true);
+  }
+});
+
+setInterval(() => {
+  if (lastSearch.firstName || lastSearch.lastName || lastSearch.plate) {
+    cachedData = null;
+    cachedAt = 0;
+    doSearch(true);
+  }
+}, 30000);
+
+window.addEventListener('load', () => {
+  const logo = document.getElementById('navLogo');
+  if (logo && logo.complete && logo.naturalWidth === 0) handleLogoError(logo);
+});
 </script>
 </body>
 </html>
