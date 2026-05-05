@@ -267,21 +267,38 @@ const clean = v => String(v || '').replace(/^\uFEFF/, '').trim();
 const normKey = v => clean(v).toLowerCase().replace(/\s+/g,' ').replace(/[^a-z0-9 ]/g,'');
 const normVal = v => clean(v).toLowerCase().replace(/\s+/g,'');
 const g = (r, k) => { const v = r[normKey(k)]; return v && String(v).trim() !== '' ? String(v).trim() : '—'; };
+function stageKey(raw) {
+  return String(raw || '')
+    .replace(/^﻿/, '')
+    .replace(/ /g, ' ')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
 function canonicalStage(raw) {
-  const s = normVal(raw).replace(/&/g, 'and').replace(/[\/\-]/g, ' ').replace(/\s+/g, ' ').trim();
+  const s = stageKey(raw);
   if (!s) return 'Vehicle Received';
-  if (/(bay 1|wash 1)/.test(s)) return 'Bay 1 - Washing';
-  if (/(bay 2|wash 2)/.test(s)) return 'Bay 2 - Washing';
-  if (/(bay 3|wash 3)/.test(s)) return 'Bay 3 - Washing';
-  if (/(vehicle received|received)/.test(s)) return 'Vehicle Received';
-  if (/(waiting queue|queue|waiting)/.test(s)) return 'Waiting Queue';
-  if (/(rinse|rinsing)/.test(s)) return 'Rinsing';
-  if (/(dry|drying)/.test(s)) return 'Drying';
-  if (/(interior)/.test(s)) return 'Interior Cleaning';
-  if (/(polish|finish)/.test(s)) return 'Polishing';
-  if (/(quality check|qc|quality control)/.test(s)) return 'Quality Check';
-  if (/(ready|collection)/.test(s)) return 'Ready for Collection';
-  if (/(collected|done|complete)/.test(s)) return 'Collected';
+
+  const map = [
+    [/^vehicle received$|^received$/, 'Vehicle Received'],
+    [/^waiting queue$|^queue$|^waiting$/, 'Waiting Queue'],
+    [/^bay 1 washing$|^bay 1$|^wash 1$|^washing 1$/, 'Bay 1 - Washing'],
+    [/^bay 2 washing$|^bay 2$|^wash 2$|^washing 2$/, 'Bay 2 - Washing'],
+    [/^bay 3 washing$|^bay 3$|^wash 3$|^washing 3$/, 'Bay 3 - Washing'],
+    [/^rinse$|^rinsing$/, 'Rinsing'],
+    [/^dry$|^drying$/, 'Drying'],
+    [/^interior$|^interior cleaning$|^inside cleaning$/, 'Interior Cleaning'],
+    [/^polish$|^polishing$|^polishing finishing$|^finishing$|^polishing finish$/, 'Polishing'],
+    [/^quality check$|^qc$|^quality control$|^quality$/, 'Quality Check'],
+    [/^ready for collection$|^ready$|^ready to collect$|^collection$/, 'Ready for Collection'],
+    [/^collected$|^done$|^complete$|^completed$/, 'Collected']
+  ];
+
+  for (const [pattern, value] of map) {
+    if (pattern.test(s)) return value;
+  }
+
   return 'Vehicle Received';
 }
 function setLoading(show){ document.getElementById('loadingOverlay').classList.toggle('visible', show); }
@@ -305,36 +322,33 @@ async function fetchData(forceFresh=false){
   if(!forceFresh && freshEnough) return cachedData;
   if(isFetching) return cachedData || [];
   isFetching = true;
+
   try{
-    const first = await fetchSnapshot();
-    if(!first) return cachedData || [];
-    const firstSig = JSON.stringify(first);
+    let previousSig = cachedData ? JSON.stringify(cachedData) : '';
 
-    if(!cachedData){
-      cachedData = first;
-      cachedAt = Date.now();
-      return cachedData;
-    }
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const first = await fetchSnapshot();
+      if (!first) continue;
 
-    const currentSig = JSON.stringify(cachedData);
-    if(firstSig === currentSig){
-      cachedAt = Date.now();
-      return cachedData;
-    }
-
-    if(forceFresh){
-      await new Promise(r => setTimeout(r, 900));
+      const firstSig = JSON.stringify(first);
+      await new Promise(r => setTimeout(r, 800));
       const second = await fetchSnapshot();
-      if(!second) return cachedData || [];
+      if (!second) continue;
+
       const secondSig = JSON.stringify(second);
-      if(secondSig === firstSig){
-        cachedData = second;
-        cachedAt = Date.now();
+
+      if (firstSig === secondSig) {
+        if (forceFresh || firstSig !== previousSig || !cachedData) {
+          cachedData = second;
+          cachedAt = Date.now();
+        }
+        return cachedData || second;
       }
-      return cachedData || second;
+
+      previousSig = secondSig;
     }
 
-    return cachedData;
+    return cachedData || [];
   } catch(err){
     console.error(err);
     return cachedData || [];
@@ -430,9 +444,14 @@ async function refreshData(){
   const btn=document.getElementById('refreshBtn');
   btn.classList.add('loading');
   try{
-    if(lastSearch.firstName || lastSearch.lastName || lastSearch.plate) await doSearch(true);
-    else { cachedData = null; cachedAt = 0; await fetchData(true); }
-  } finally { btn.classList.remove('loading'); }
+    if(lastSearch.firstName || lastSearch.lastName || lastSearch.plate) {
+      await doSearch(true);
+    } else {
+      await fetchData(true);
+    }
+  } finally {
+    btn.classList.remove('loading');
+  }
 }
 function handleLogoError(img){ img.style.display='none'; const fallback=document.getElementById('logoFallback'); if(fallback) fallback.style.display='flex'; }
 ['firstName','lastName','plate'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{ if(e.key==='Enter') doSearch(); }));
